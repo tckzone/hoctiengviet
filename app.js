@@ -9,11 +9,21 @@ let selectedCompareFiles = [];
 let currentCompareIdx = 0;
 let isComparePlaying = false;
 
-window.onload = function() {
-    renderTags();
-    applyFilters();
-    buildCompareCheckboxGrid(); // Khởi tạo lưới chọn so sánh
-};
+// Đảm bảo dữ liệu từ database.js đã được tải xong hoàn toàn trước khi dựng giao diện
+window.addEventListener('DOMContentLoaded', () => {
+    if (typeof database !== 'undefined' && database.length > 0) {
+        renderTags();
+        applyFilters();
+        buildCompareCheckboxGrid(); // Gọi hàm đổ dữ liệu ra bảng so sánh
+    } else {
+        // Dự phòng nếu database.js load chậm hơn app.js
+        setTimeout(() => {
+            renderTags();
+            applyFilters();
+            buildCompareCheckboxGrid();
+        }, 500);
+    }
+});
 
 // ========================================================
 /* 🚀 CHỨC NĂNG 1: CỬA SỔ SO SÁNH PHÁT ÂM ĐỘC LẬP */
@@ -23,6 +33,8 @@ window.onload = function() {
 function openCompareWindow() {
     document.getElementById("mainAppZone").style.display = "none";
     document.getElementById("compareWindowModal").style.display = "block";
+    // Mỗi lần mở cửa sổ, làm mới lại lưới để đảm bảo hiển thị đúng
+    buildCompareCheckboxGrid();
 }
 
 // Đóng cửa sổ quay về học bài
@@ -32,16 +44,28 @@ function closeCompareWindow() {
     document.getElementById("mainAppZone").style.display = "block";
 }
 
-// Đổ dữ liệu 172 từ ra lưới ô vuông checkbox rộng rãi
+// Đổ dữ liệu 172 từ ra lưới ô vuông checkbox rộng rãi (Dễ chạm trên điện thoại)
 function buildCompareCheckboxGrid() {
     const container = document.getElementById("compareCheckboxContainer");
+    if (!container) return;
+    
     container.innerHTML = "";
+    
+    if (typeof database === 'undefined' || database.length === 0) {
+        container.innerHTML = "<div style='grid-column: span 4; text-align:center; color:#999; padding:20px;'>正在加载词庫... (Đang tải kho từ...)</div>";
+        return;
+    }
+
     database.forEach((item) => {
+        // Kiểm tra xem file này trước đó đã được tích chọn chưa để giữ nguyên trạng thái
+        const isChecked = selectedCompareFiles.includes(item.file) ? "checked" : "";
+        
         container.innerHTML += `
             <label class="compare-label-box">
-                <input type="checkbox" value="${item.file}" data-word="${item.word}" onchange="handleCompareGridChange()">
+                <input type="checkbox" value="${item.file}" data-word="${item.word}" ${isChecked} onchange="handleCompareGridChange()">
                 ${item.word}
-            </label>`;
+            </label>
+        `;
     });
 }
 
@@ -50,6 +74,7 @@ function handleCompareGridChange() {
     const checkboxes = document.querySelectorAll("#compareCheckboxContainer input[type='checkbox']");
     let selectedWords = [];
     selectedCompareFiles = [];
+    
     checkboxes.forEach(cb => {
         if (cb.checked) {
             selectedWords.push(cb.getAttribute("data-word"));
@@ -90,7 +115,7 @@ function playNextCompareTrack(player) {
         currentCompareIdx++;
         setTimeout(() => {
             playNextCompareTrack(player);
-        }, 600); // Khoảng nghỉ giữa các từ
+        }, 600); // Khoảng nghỉ nửa giây giữa các từ để học viên kịp nhận biết âm
     };
 }
 
@@ -111,16 +136,20 @@ function clearCompareSelection() {
 }
 
 // ========================================================
-/* ⚙️ CHỨC NĂNG 2: BỘ LỌC NHÓM ÂM & SỐ LƯỢNG TIẾN ĐỘ */
+/* ⚙️ CHỨC NĂNG 2: BỘ LỌC NHÓM ÂM & FLASHCARD CHÍNH */
 // ========================================================
 
 function renderTags() {
     const box = document.getElementById("tagBox");
+    if (!box) return;
     box.innerHTML = "";
     activeGroups.forEach(g => {
         let label = g === "chu_cai" ? "字母表" : (g === "phu_am" ? "辅音" : g.toUpperCase() + "组");
         box.innerHTML += `<div class="tag-item" onclick="removeGroup('${g}')">${label} ✕</div>`;
     });
+    if (activeGroups.length === 0) {
+        box.innerHTML = `<span style="color:#aaa; font-size:13px;">请选择字母组进行过滤...</span>`;
+    }
 }
 
 function addGroupFilter(val) {
@@ -142,6 +171,8 @@ function removeGroup(g) {
 }
 
 function applyFilters() {
+    if (typeof database === 'undefined') return;
+    
     if (activeGroups.length === 0) {
         filteredList = [];
     } else if (activeGroups.includes("all")) {
@@ -154,7 +185,10 @@ function applyFilters() {
 }
 
 function syncCardUI() {
-    document.getElementById("totalProgress").innerText = filteredList.length;
+    const totalProgressEl = document.getElementById("totalProgress");
+    if (!totalProgressEl) return;
+    
+    totalProgressEl.innerText = filteredList.length;
     document.getElementById("alertBox").innerText = "";
     document.getElementById("dictationField").value = "";
     document.getElementById("cardInner").classList.remove("is-flipped");
@@ -174,7 +208,7 @@ function syncCardUI() {
 
 function playSoundDirectly() {
     if (filteredList.length === 0) return;
-    stopComparePlayback(); // Tắt trình so sánh nếu đang bật
+    stopComparePlayback();
     const player = document.getElementById("internalAudioPlayer");
     player.pause();
     const finalAudioUrl = cloudStorageUrl + filteredList[idx].file;
@@ -204,7 +238,6 @@ function movePointer(s) {
     syncCardUI();
 }
 
-// Kiểm tra chính tả khi gõ Enter
 document.getElementById("dictationField").addEventListener("keydown", function(e) {
     if (e.key === "Enter") {
         e.preventDefault();
