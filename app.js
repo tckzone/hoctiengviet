@@ -4,40 +4,51 @@ let activeGroups = ["chu_cai", "phu_am"];
 let filteredList = [];
 let idx = 0;
 
-// Các biến phục vụ tính năng so sánh phát âm liên tiếp
+// Các biến điều khiển phát nối đuôi so sánh âm
 let selectedCompareFiles = [];
 let currentCompareIdx = 0;
+let isComparePlaying = false;
 
 window.onload = function() {
     renderTags();
     applyFilters();
-    buildCompareCheckboxMenu(); // Khởi tạo danh sách từ chọn so sánh
+    buildCompareCheckboxGrid(); // Khởi tạo lưới checkbox độc lập
 };
 
-// --- TÍNH NĂNG ⚙️ MENU SO SÁNH PHÁT ÂM ---
+// ========================================================
+/* 🚀 LOGIC ĐIỀU KHIỂN CỬA SỔ SO SÁNH RIÊNG BIỆT */
+// ========================================================
 
-// 1. Ẩn hiện menu khi bấm nút 3 chấm
-function toggleCompareMenu() {
-    document.getElementById("compareMenu").classList.toggle("show");
+// 1. Mở cửa sổ độc lập
+function openCompareWindow() {
+    document.getElementById("mainAppZone").style.display = "none";
+    document.getElementById("compareWindowModal").style.display = "block";
 }
 
-// 2. Tự động gom toàn bộ 172 từ trong database ra danh sách Checkbox
-function buildCompareCheckboxMenu() {
+// 2. Đóng cửa sổ quay về học bài
+function closeCompareWindow() {
+    stopComparePlayback(); // Dừng âm thanh nếu đang phát dở
+    document.getElementById("compareWindowModal").style.display = "none";
+    document.getElementById("mainAppZone").style.display = "block";
+}
+
+// 3. Tự động đổ toàn bộ 172 từ ra lưới ô vuông checkbox rộng rãi
+function buildCompareCheckboxGrid() {
     const container = document.getElementById("compareCheckboxContainer");
     container.innerHTML = "";
     
-    database.forEach((item, index) => {
+    database.forEach((item) => {
         container.innerHTML += `
-            <label class="compare-item-label">
-                <input type="checkbox" value="${item.file}" data-word="${item.word}" onchange="handleCompareCheckboxChange()">
+            <label class="compare-label-box">
+                <input type="checkbox" value="${item.file}" data-word="${item.word}" onchange="handleCompareGridChange()">
                 ${item.word}
             </label>
         `;
     });
 }
 
-// 3. Xử lý khi học viên tích chọn hoặc bỏ tích từ vựng
-function handleCompareCheckboxChange() {
+// 4. Đồng bộ hóa dữ liệu khi học viên tích chọn từ
+function handleCompareGridChange() {
     const checkboxes = document.querySelectorAll("#compareCheckboxContainer input[type='checkbox']");
     let selectedWords = [];
     selectedCompareFiles = [];
@@ -45,43 +56,43 @@ function handleCompareCheckboxChange() {
     checkboxes.forEach(cb => {
         if (cb.checked) {
             selectedWords.push(cb.getAttribute("data-word"));
-            selectedCompareFiles.push(cb.value); // Lưu link file nhạc tương ứng
+            selectedCompareFiles.push(cb.value);
         }
     });
 
-    // Cập nhật hiển thị vào ô input cho học viên nhìn thấy
+    // Hiện chuỗi từ cách nhau bằng mũi tên (ví dụ: an → ang → ac)
     document.getElementById("compareWordsInput").value = selectedWords.join(" → ");
 }
 
-// 4. Nút xóa sạch các lựa chọn so sánh
+// 5. NÚT BẤM XÓA SẠCH LỰA CHỌN
 function clearCompareSelection() {
+    stopComparePlayback();
     const checkboxes = document.querySelectorAll("#compareCheckboxContainer input[type='checkbox']");
     checkboxes.forEach(cb => cb.checked = false);
     document.getElementById("compareWordsInput").value = "";
     selectedCompareFiles = [];
-    document.getElementById("compareAudioPlayer").pause();
 }
 
-// 5. THUẬT TOÁN ĐỌC LẦN LƯỢT TỪNG ÂM NỐI ĐUÔI NHAU
+// 6. NÚT BẤM BẮT ĐẦU NGHE SO SÁNH
 function startComparePlayback() {
-    if (selectedCompareFiles.length === 0) {
-        alert("请先勾选想要对比的字母！(Vui lòng tích chọn từ cần so sánh trước!)");
+    if (selectedCompareFiles.length < 2) {
+        alert("请至少勾选 2 个单词进行对比！\n(Vui lòng tích chọn ít nhất từ 2 từ trở lên để so sánh!)");
         return;
     }
     
-    // Thu nhỏ menu thả xuống lại để nhìn màn hình cho thoáng khi đang đọc
-    document.getElementById("compareMenu").classList.remove("show");
-    
     const player = document.getElementById("compareAudioPlayer");
-    document.getElementById("internalAudioPlayer").pause(); // Dừng trình phát chính nếu có
+    document.getElementById("internalAudioPlayer").pause(); // Tắt audio chính
     
-    currentCompareIdx = 0; // Bắt đầu từ từ đầu tiên trong danh sách chọn
+    currentCompareIdx = 0;
+    isComparePlaying = true;
     playNextCompareTrack(player);
 }
 
+// Thuật toán phát âm nối đuôi liên tục
 function playNextCompareTrack(player) {
-    if (currentCompareIdx >= selectedCompareFiles.length) {
-        console.log("Đã phát xong toàn bộ danh sách so sánh.");
+    if (!isComparePlaying || currentCompareIdx >= selectedCompareFiles.length) {
+        isComparePlaying = false;
+        console.log("Hàng đợi so sánh kết thúc.");
         return;
     }
 
@@ -89,19 +100,28 @@ function playNextCompareTrack(player) {
     player.src = encodeURI(finalUrl);
     player.load();
     
-    player.play().catch(e => console.log("Lỗi phát audio so sánh: ", e));
+    player.play().catch(e => console.log("Lỗi âm thanh: ", e));
 
-    // Bắt sự kiện: Khi bài nhạc hiện tại phát XONG (ended) -> Tự động kích hoạt bài tiếp theo
+    // Sự kiện: Khi phát xong từ này -> tự nhảy sang từ tiếp theo
     player.onended = function() {
         currentCompareIdx++;
-        // Tạo một khoảng nghỉ ngắn 400 mili-giây giữa 2 từ để học viên kịp định hình âm thanh
         setTimeout(() => {
             playNextCompareTrack(player);
-        }, 400);
+        }, 500); // Khoảng nghỉ nửa giây giữa các từ để học viên nhận biết âm
     };
 }
 
-// --- CÁC HÀM LOGIC GIAO DIỆN FLASHCARD GỐC GIỮ NGUYÊN ---
+// 7. NÚT BẤM DỪNG PHÁT NGAY LẬP TỨC
+function stopComparePlayback() {
+    isComparePlaying = false;
+    const player = document.getElementById("compareAudioPlayer");
+    player.pause();
+    player.src = "";
+}
+
+// ========================================================
+/* ⚙️ LOGIC FLASHCARD GỐC (GIỮ NGUYÊN VẸN 100%) */
+// ========================================================
 
 function renderTags() {
     const box = document.getElementById("tagBox");
@@ -180,13 +200,13 @@ function syncCardUI() {
 
 function playSoundDirectly() {
     if (filteredList.length === 0) return;
-    document.getElementById("compareAudioPlayer").pause(); // Dừng trình phát so sánh nếu đang chạy
+    stopComparePlayback(); // Tắt trình so sánh nếu đang bật
     const player = document.getElementById("internalAudioPlayer");
     player.pause();
     const finalAudioUrl = cloudStorageUrl + filteredList[idx].file;
     player.src = encodeURI(finalAudioUrl); 
     player.load();
-    player.play().catch(e => console.log("Audio play deferred: ", e));
+    player.play().catch(e => console.log("Audio deferred: ", e));
 }
 
 function flipCard() {
@@ -214,7 +234,7 @@ document.getElementById("dictationField").addEventListener("keydown", function(e
         if (inputVal === answerVal) {
             alertElement.className = "result-message result-success";
             alertElement.innerText = "🎉 正确！拼写完全一致！";
-            document.getElementById("cardInner").classList.add("add("is-flipped");
+            document.getElementById("cardInner").classList.add("is-flipped");
         } else {
             alertElement.className = "result-message result-error";
             alertElement.innerText = `❌ 错误！请点击卡片翻转查看正解`;
