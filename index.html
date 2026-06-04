@@ -9,6 +9,8 @@
 <body>
 
 <audio id="internalAudioPlayer"></audio>
+<!-- Trình phát phụ dành riêng cho tính năng so sánh âm -->
+<audio id="compareAudioPlayer"></audio>
 
 <div class="container">
     <div class="config-section">
@@ -30,12 +32,35 @@
         </div>
         
         <button class="btn-shuffle" onclick="shuffleCards()">🔀 打乱顺序 / 刷新词组</button>
-        <div class="network-status">🌐 线路状态: JSDelivr 加速通道 (中国免翻墙)</div>
+        <div class="network-status">🌐 线路状态: JSDelivr 加速通道</div>
     </div>
 
-    <div class="card-section">
+    <div class="card-section" style="position: relative;">
+        <!-- ⚙️ NÚT 3 CHẤM VÀ MENU THẢ XUỐNG Ở GÓC TRÊN BÊN TRÁI -->
+        <div class="dropdown-wrapper">
+            <button class="btn-menu-toggle" onclick="toggleCompareMenu()">⚙️</button>
+            <div class="dropdown-menu-content" id="compareMenu">
+                <h4>📊 发音对比工具 (So sánh phát âm)</h4>
+                <p>请勾选想要对比的字母/韵母 (Chọn các từ để so sánh):</p>
+                
+                <!-- Danh sách các từ để học viên tích chọn (Tự động sinh bằng JS) -->
+                <div class="compare-checkbox-list" id="compareCheckboxContainer"></div>
+                
+                <div class="compare-input-zone">
+                    <label>已选对比列表 (Danh sách đã chọn):</label>
+                    <input type="text" id="compareWordsInput" readonly placeholder="未选择任何词...">
+                </div>
+                
+                <div class="action-table" style="margin-top: 8px;">
+                    <div class="action-cell"><button class="btn-shuffle" style="background:#ff4d4f; color:#fff;" onclick="clearCompareSelection()">🧹 清空</button></div>
+                    <div class="action-cell"><button class="btn-next" style="margin-bottom:0;" onclick="startComparePlayback()">🔊 顺序播放</button></div>
+                </div>
+            </div>
+        </div>
+
         <div class="progress-text">当前进度: <span id="currentProgress">0</span>/<span id="totalProgress">0</span></div>
         
+        <!-- Flashcard -->
         <div class="flashcard-wrapper">
             <div class="flashcard-inner" id="cardInner" onclick="flipCard()">
                 <div class="card-face card-front">
@@ -69,7 +94,7 @@
 
         <div class="nav-table">
             <div class="nav-cell"><button class="btn-prev" onclick="movePointer(-1)">⬅️ 上一个</button></div>
-            <div class="nav-cell"><button class="btn-next" onclick="movePointer(1)">👉 下一个</button></div>
+            <div class="nav-cell"><button class="btn-next" onclick="movePointer(1)">👉 下一個</button></div>
         </div>
     </div>
 </div>
