@@ -1,1 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>越南语多维深度动态记忆卡</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+<audio id="internalAudioPlayer"></audio>
+
+<div class="container">
+    <div class="config-section">
+        <div class="section-title">📁 越南语发音字母组 (点击切换过滤)</div>
+        <div class="tag-container" id="tagBox"></div>
+        
+        <div class="round-select-box">
+            <select id="groupAdder" onchange="addGroupFilter(this.value)">
+                <option value="">+ 添加/查看字母组合过滤...</option>
+                <option value="all">显示全部 (172个字母与韵母)</option>
+                <option value="chu_cai">Bảng chữ cái tiếng Việt (a, ă, â...)</option>
+                <option value="phu_am">Phụ âm ghép đầu (ch, kh, th...)</option>
+                <option value="a">A 组韵母 (ia, ua, ưa...)</option>
+                <option value="e">E 组韵母 (ưi, ay, ây...)</option>
+                <option value="i">I 组韵母 (it, ot, ôt...)</option>
+                <option value="o">O 组韵母 (un, ang, ăng...)</option>
+                <option value="u">U 组韵母 (êm, om, ôm...)</option>
+            </select>
+        </div>
+        
+        <button class="btn-shuffle" onclick="shuffleCards()">🔀 打乱顺序 / 刷新词组</button>
+        <div class="network-status">🌐 线路状态: JSDelivr 加速通道 (中国免翻墙)</div>
+    </div>
+
+    <div class="card-section">
+        <div class="progress-text">当前进度: <span id="currentProgress">0</span>/<span id="totalProgress">0</span></div>
+        
+        <div class="flashcard-wrapper">
+            <div class="flashcard-inner" id="cardInner" onclick="flipCard()">
+                <div class="card-face card-front">
+                    <div class="card-cell-helper">
+                        <div class="card-content-box">
+                            <div class="display-title">🎵 听音辨词: 请听发音写单词</div>
+                            <div class="display-sub">点击卡片或下按钮可翻转查看答案</div>
+                            <div class="hint-text">❓ 点击翻转</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-face card-back">
+                    <div class="card-cell-helper">
+                        <div class="card-content-box">
+                            <div class="revealed-word" id="wordRevealTarget">---</div>
+                            <div class="revealed-mean" id="meanRevealTarget">---</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-table">
+            <div class="action-cell"><button onclick="flipCard()">🔄 翻转卡片</button></div>
+            <div class="action-cell"><button onclick="playSoundDirectly()">🔊 点击发音</button></div>
+        </div>
+
+        <div class="input-label">请输入听到的越南语单词 <span>(完成务必击 Enter)</span>:</div>
+        <input type="text" id="dictationField" placeholder="在此键入拼写后按 Enter 提交核对..." autocomplete="off">
+        <div class="result-message" id="alertBox"></div>
+
+        <div class="nav-table">
+            <div class="nav-cell"><button class="btn-prev" onclick="movePointer(-1)">⬅️ 上一个</button></div>
+            <div class="nav-cell"><button class="btn-next" onclick="movePointer(1)">👉 下一个</button></div>
+        </div>
+    </div>
+</div>
+
+<script src="database.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
