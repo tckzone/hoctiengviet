@@ -9,92 +9,96 @@
 <body>
 
 <audio id="internalAudioPlayer"></audio>
-<!-- Trình phát phụ dành riêng cho tính năng so sánh âm -->
 <audio id="compareAudioPlayer"></audio>
 
 <div class="container">
-    <div class="config-section">
-        <div class="section-title">📁 越南语发音字母组 (点击切换过滤)</div>
-        <div class="tag-container" id="tagBox"></div>
-        
-        <div class="round-select-box">
-            <select id="groupAdder" onchange="addGroupFilter(this.value)">
-                <option value="">+ 添加/查看字母组合过滤...</option>
-                <option value="all">显示全部 (172个字母与韵母)</option>
-                <option value="chu_cai">Bảng chữ cái tiếng Việt (a, ă, â...)</option>
-                <option value="phu_am">Phụ âm ghép đầu (ch, kh, th...)</option>
-                <option value="a">A 组韵母 (ia, ua, ưa...)</option>
-                <option value="e">E 组韵母 (ưi, ay, ây...)</option>
-                <option value="i">I 组韵母 (it, ot, ôt...)</option>
-                <option value="o">O 组韵母 (un, ang, ăng...)</option>
-                <option value="u">U 组韵母 (êm, om, ôm...)</option>
-            </select>
+    <div id="mainAppZone">
+        <div class="config-section">
+            <div class="section-title">📁 越南语发音字母组 (点击切换过滤)</div>
+            <div class="tag-container" id="tagBox"></div>
+            
+            <div class="round-select-box">
+                <select id="groupAdder" onchange="addGroupFilter(this.value)">
+                    <option value="">+ 添加/查看字母组合过滤...</option>
+                    <option value="all">显示全部 (172个字母与韵母)</option>
+                    <option value="chu_cai">Bảng chữ cái tiếng Việt (a, ă, â...)</option>
+                    <option value="phu_am">Phụ âm ghép đầu (ch, kh, th...)</option>
+                    <option value="a">A 组韵母 (ia, ua, ưa...)</option>
+                    <option value="e">E 组韵母 (ưi, ay, ây...)</option>
+                    <option value="i">I 组韵母 (it, ot, ôt...)</option>
+                    <option value="o">O 组韵母 (un, ang, ăng...)</option>
+                    <option value="u">U 组韵母 (êm, om, ôm...)</option>
+                </select>
+            </div>
+            
+            <button class="btn-shuffle" onclick="shuffleCards()">🔀 打乱顺序 / 刷新词组</button>
+            <div class="network-status">🌐 线路状态: JSDelivr 加速通道</div>
         </div>
-        
-        <button class="btn-shuffle" onclick="shuffleCards()">🔀 打乱顺序 / 刷新词组</button>
-        <div class="network-status">🌐 线路状态: JSDelivr 加速通道</div>
+
+        <div class="card-section" style="position: relative;">
+            <button class="btn-open-compare" onclick="openCompareWindow()" title="打开语音对比">▶ 发音对比</button>
+
+            <div class="progress-text">当前进度: <span id="currentProgress">0</span>/<span id="totalProgress">0</span></div>
+            
+            <div class="flashcard-wrapper">
+                <div class="flashcard-inner" id="cardInner" onclick="flipCard()">
+                    <div class="card-face card-front">
+                        <div class="card-cell-helper">
+                            <div class="card-content-box">
+                                <div class="display-title">🎵 听音辨词: 请听发音写单词</div>
+                                <div class="display-sub">点击卡片或下按钮可翻转查看答案</div>
+                                <div class="hint-text">❓ 点击翻转</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-face card-back">
+                        <div class="card-cell-helper">
+                            <div class="card-content-box">
+                                <div class="revealed-word" id="wordRevealTarget">---</div>
+                                <div class="revealed-mean" id="meanRevealTarget">---</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="action-table">
+                <div class="action-cell"><button onclick="flipCard()">🔄 翻转卡片</button></div>
+                <div class="action-cell"><button onclick="playSoundDirectly()">🔊 点击发音</button></div>
+            </div>
+
+            <div class="input-label">请输入听到的越南语单词 <span>(完成务必击 Enter)</span>:</div>
+            <input type="text" id="dictationField" placeholder="在此键入拼写后按 Enter 提交核对..." autocomplete="off">
+            <div class="result-message" id="alertBox"></div>
+
+            <div class="nav-table">
+                <div class="nav-cell"><button class="btn-prev" onclick="movePointer(-1)">⬅️ 上一个</button></div>
+                <div class="nav-cell"><button class="btn-next" onclick="movePointer(1)">👉 下一個</button></div>
+            </div>
+        </div>
     </div>
 
-    <div class="card-section" style="position: relative;">
-        <!-- ⚙️ NÚT 3 CHẤM VÀ MENU THẢ XUỐNG Ở GÓC TRÊN BÊN TRÁI -->
-        <div class="dropdown-wrapper">
-            <button class="btn-menu-toggle" onclick="toggleCompareMenu()">⚙️</button>
-            <div class="dropdown-menu-content" id="compareMenu">
-                <h4>📊 发音对比工具 (So sánh phát âm)</h4>
-                <p>请勾选想要对比的字母/韵母 (Chọn các từ để so sánh):</p>
-                
-                <!-- Danh sách các từ để học viên tích chọn (Tự động sinh bằng JS) -->
-                <div class="compare-checkbox-list" id="compareCheckboxContainer"></div>
-                
-                <div class="compare-input-zone">
-                    <label>已选对比列表 (Danh sách đã chọn):</label>
-                    <input type="text" id="compareWordsInput" readonly placeholder="未选择任何词...">
-                </div>
-                
-                <div class="action-table" style="margin-top: 8px;">
-                    <div class="action-cell"><button class="btn-shuffle" style="background:#ff4d4f; color:#fff;" onclick="clearCompareSelection()">🧹 清空</button></div>
-                    <div class="action-cell"><button class="btn-next" style="margin-bottom:0;" onclick="startComparePlayback()">🔊 顺序播放</button></div>
-                </div>
-            </div>
+    <div id="compareWindowModal" class="compare-modal">
+        <div class="compare-modal-header">
+            <h3>📊 发音对比工具 (So sánh phát âm)</h3>
+            <button class="btn-close-modal" onclick="closeCompareWindow()">✕ 返回学习</button>
         </div>
-
-        <div class="progress-text">当前进度: <span id="currentProgress">0</span>/<span id="totalProgress">0</span></div>
         
-        <!-- Flashcard -->
-        <div class="flashcard-wrapper">
-            <div class="flashcard-inner" id="cardInner" onclick="flipCard()">
-                <div class="card-face card-front">
-                    <div class="card-cell-helper">
-                        <div class="card-content-box">
-                            <div class="display-title">🎵 听音辨词: 请听发音写单词</div>
-                            <div class="display-sub">点击卡片或下按钮可翻转查看答案</div>
-                            <div class="hint-text">❓ 点击翻转</div>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-face card-back">
-                    <div class="card-cell-helper">
-                        <div class="card-content-box">
-                            <div class="revealed-word" id="wordRevealTarget">---</div>
-                            <div class="revealed-mean" id="meanRevealTarget">---</div>
-                        </div>
-                    </div>
-                </div>
+        <div class="compare-modal-body">
+            <p class="tip-text">💡 请勾选 2 个或以上的单词进行连读对比 (Hãy tích chọn từ 2 từ trở lên để nghe so sánh):</p>
+            
+            <div class="compare-checkbox-grid" id="compareCheckboxContainer"></div>
+            
+            <div class="compare-output-box">
+                <span class="box-label">播放队列 (Hàng đợi phát):</span>
+                <input type="text" id="compareWordsInput" readonly placeholder="未勾选单词...">
             </div>
-        </div>
-
-        <div class="action-table">
-            <div class="action-cell"><button onclick="flipCard()">🔄 翻转卡片</button></div>
-            <div class="action-cell"><button onclick="playSoundDirectly()">🔊 点击发音</button></div>
-        </div>
-
-        <div class="input-label">请输入听到的越南语单词 <span>(完成务必击 Enter)</span>:</div>
-        <input type="text" id="dictationField" placeholder="在此键入拼写后按 Enter 提交核对..." autocomplete="off">
-        <div class="result-message" id="alertBox"></div>
-
-        <div class="nav-table">
-            <div class="nav-cell"><button class="btn-prev" onclick="movePointer(-1)">⬅️ 上一个</button></div>
-            <div class="nav-cell"><button class="btn-next" onclick="movePointer(1)">👉 下一個</button></div>
+            
+            <div class="compare-control-panel">
+                <button class="btn-ctrl btn-clear" onclick="clearCompareSelection()">🧹 清空已选</button>
+                <button class="btn-ctrl btn-stop" onclick="stopComparePlayback()">⏹ 停止播放</button>
+                <button class="btn-ctrl btn-play" onclick="startComparePlayback()">🔊 开始听音对比</button>
+            </div>
         </div>
     </div>
 </div>
