@@ -222,106 +222,142 @@ input[type="text"] {
 /* ======================================================== */
 /* ⚙️ THIẾT KẾ MENU 3 CHẤM THẢ XUỐNG (DROPDOWN MENU) */
 /* ======================================================== */
-.dropdown-wrapper {
+/* ======================================================== */
+/* 🚪 GIAO DIỆN CỬA SỔ TÍNH NĂNG SO SÁNH ĐỘC LẬP (MODAL) */
+/* ======================================================== */
+
+/* Nút mũi tên mở tính năng trên màn hình chính */
+.btn-open-compare {
     position: absolute;
     top: 12px;
     left: 15px;
-    z-index: 100;
+    width: auto !important;
+    padding: 6px 12px !important;
+    margin-bottom: 0 !important;
+    background: #FF9800 !important;
+    color: white !important;
+    font-size: 13px !important;
+    border-radius: 20px !important;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Khung cửa sổ Popup độc lập */
+.compare-modal {
+    display: none; /* Ẩn mặc định */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #f5f7fa;
+    z-index: 9999;
+    padding: 15px;
+    box-sizing: border-box;
+    overflow-y: auto;
+}
+
+/* Thanh đầu đề của cửa sổ */
+.compare-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #5c4cf4;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+}
+.compare-modal-header h3 {
+    margin: 0;
+    font-size: 16px;
+    color: #5c4cf4;
+}
+.btn-close-modal {
+    width: auto !important;
+    margin-bottom: 0 !important;
+    padding: 6px 12px !important;
+    background: #666 !important;
+    color: white !important;
+    font-size: 13px !important;
+}
+
+.tip-text {
+    font-size: 13px;
+    color: #555;
+    margin: 0 0 12px 0;
     text-align: left;
 }
 
-.btn-menu-toggle {
-    width: 36px !important;
-    height: 36px !important;
-    padding: 0 !important;
-    margin-bottom: 0 !important;
-    background: #f5f5f5;
-    border: 1px solid #ddd !important;
-    border-radius: 50% !important;
-    font-size: 16px !important;
-    display: flex !important;
+/* Vùng hiển thị lưới chứa các ô checkbox rộng rãi cho học viên chọn */
+.compare-checkbox-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Chia đều 4 cột trên điện thoại */
+    gap: 8px;
+    max-height: 50vh; /* Chiếm tối đa 50% chiều cao màn hình */
+    overflow-y: auto;
+    background: #ffffff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 12px;
+}
+
+.compare-label-box {
+    display: flex;
     align-items: center;
     justify-content: center;
-}
-.btn-menu-toggle:active { background: #e8e8e8; }
-
-.dropdown-menu-content {
-    display: none; /* Mặc định ẩn, bật class 'show' sẽ hiện */
-    position: absolute;
-    top: 42px;
-    left: 0;
-    width: 290px;
-    background: #ffffff;
-    border: 1px solid #614cf4;
-    border-radius: 12px;
-    padding: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-}
-
-/* Class kích hoạt hiển thị thực tế */
-.dropdown-menu-content.show {
-    display: block;
-}
-
-.dropdown-menu-content h4 {
-    margin: 0 0 6px 0;
-    font-size: 14px;
-    color: #614cf4;
-}
-
-.dropdown-menu-content p {
-    margin: 0 0 8px 0;
-    font-size: 12px;
-    color: #666;
-}
-
-/* Vùng cuộn chứa danh sách checkbox các từ vựng */
-.compare-checkbox-list {
-    display: block;
-    width: 100%;
-    height: 110px;
-    border: 1px solid #eee;
+    background: #f9f9f9;
+    border: 1px solid #e0e0e0;
     border-radius: 6px;
-    overflow-y: auto; /* Tạo thanh cuộn dọc nội bộ */
-    padding: 6px;
-    background: #fafafa;
-}
-
-.compare-item-label {
-    display: inline-block;
-    margin: 4px;
-    padding: 4px 6px;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 13px;
+    padding: 10px 4px;
+    font-size: 14px;
     font-weight: bold;
     cursor: pointer;
+    user-select: none;
 }
-.compare-item-label input {
+.compare-label-box input {
     margin-right: 4px;
-    vertical-align: middle;
+    transform: scale(1.2); /* Phóng to ô tích chọn để dễ chạm trúng */
 }
 
-/* Ô input hiển thị các chữ đã chọn */
-.compare-input-zone {
-    margin-top: 8px;
+/* Ô hiển thị danh sách từ đã chọn nghe */
+.compare-output-box {
+    background: #fff;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    margin-bottom: 12px;
+    text-align: left;
 }
-.compare-input-zone label {
+.compare-output-box .box-label {
     display: block;
-    font-size: 11px;
-    font-weight: bold;
+    font-size: 12px;
     color: #888;
-    margin-bottom: 2px;
-}
-.compare-input-zone input {
-    width: 100% !important;
-    padding: 8px !important;
-    font-size: 14px !important;
-    background: #f0f0f0 !important;
-    border: 1px solid #ccc !important;
-    border-radius: 6px !important;
-    text-align: left !important;
+    margin-bottom: 4px;
     font-weight: bold;
-    color: #5c4cf4;
 }
+.compare-output-box input {
+    width: 100% !important;
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    font-size: 16px !important;
+    color: #5c4cf4 !important;
+    font-weight: bold !important;
+    text-align: left !important;
+}
+
+/* Thanh công cụ nút bấm Nghe / Dừng / Xóa */
+.compare-control-panel {
+    display: flex;
+    gap: 8px;
+}
+.btn-ctrl {
+    flex: 1;
+    margin-bottom: 0 !important;
+    padding: 14px 10px !important;
+    font-size: 14px !important;
+    color: white !important;
+}
+.btn-clear { background: #888 !important; }
+.btn-stop { background: #ff4d4f !important; }
+.btn-play { background: #4CAF50 !important; }
