@@ -286,20 +286,26 @@
 <div class="container">
     <div id="mainAppZone">
         <div class="config-section">
-            <div class="section-title">📁 越南语发音字母组 (点击切换过滤)</div>
+            <div class="section-title">📁 越南语发音核心字母组 (点击切换过滤)</div>
             <div class="tag-container" id="tagBox"></div>
             
             <div class="round-select-box">
                 <select id="groupAdder" onchange="addGroupFilter(this.value)">
                     <option value="">+ 添加/查看字母组合过滤...</option>
                     <option value="all">显示全部 (172个字母与韵母)</option>
-                    <option value="chu_cai">Bảng chữ cái tiếng Việt (a, ă, â...)</option>
+                    <option value="chu_cai">Bảng chữ cái tiếng Việt (a, b, c...)</option>
                     <option value="phu_am">Phụ âm ghép đầu (ch, kh, th...)</option>
-                    <option value="a">A 组韵母 (ia, ua, ưa...)</option>
-                    <option value="e">E 组韵母 (ưi, ay, ây...)</option>
-                    <option value="i">I 组韵母 (it, ot, ôt...)</option>
-                    <option value="o">O 组韵母 (un, ang, ăng...)</option>
-                    <option value="u">U 组韵母 (êm, om, ôm...)</option>
+                    <option value="a">A 核心韵母组 (a, ia, ua, ao, ai...)</option>
+                    <option value="ă">Ă 核心韵母组 (ă, ac, at, an...)</option>
+                    <option value="â">Â 核心韵母组 (â, ây, ât, ân, âm...)</option>
+                    <option value="e">E 核心韵母组 (e, eo, et, en, em...)</option>
+                    <option value="ê">Ê 核心韵母组 (ê, êu, êt, ên, êm...)</option>
+                    <option value="o">O 核心韵母组 (o, oi, oc, ot, on...)</option>
+                    <option value="ô">Ô 核心韵母组 (ô, ôi, ôc, ôt, ôn...)</option>
+                    <option value="ơ">Ơ 核心韵母组 (ơ, ơi, ơt, ơn, ơm...)</option>
+                    <option value="i_y">I / Y 核心韵母组 (i, y, iu, it, in, iêu...)</option>
+                    <option value="u">U 核心韵母组 (u, ua, ui, uc, ut, un...)</option>
+                    <option value="ư">Ư 核心韵母组 (ư, ưa, ưu, ưi, ưc, ươc...)</option>
                 </select>
             </div>
             
@@ -374,11 +380,11 @@
 </div>
 
 <script>
-    // --- KHO DỮ LIỆU ĐƯỢC KHÓA CHẶT BẢO MẬT ---
     const cloudStorageUrl = "https://cdn.jsdelivr.net/gh/tckzone/hoctiengviet@main/";
 
+    // --- DATABASE ĐÃ ĐƯỢC CHỈNH SỬA VÀ PHÂN NHÓM CHUẨN XÁC THEO NGUYÊN ÂM ---
     const database = [
-        // === BẢNG ÂM ĐƠN (chu_cai) ===
+        // === BẢNG CHỮ CÁI ĐƠN CHUẨN (chu_cai) ===
         { word: "a", mean: "字母 a / A", group: "chu_cai", file: "a.mp3" },
         { word: "ă", mean: "字母 ă / Ă", group: "chu_cai", file: "ă.mp3" },
         { word: "â", mean: "字母 â / Â", group: "chu_cai", file: "â.mp3" },
@@ -409,7 +415,7 @@
         { word: "x", mean: "字母 x / X", group: "chu_cai", file: "x.mp3" },
         { word: "y", mean: "字母 y / Y", group: "chu_cai", file: "y.mp3" },
 
-        // === PHỤ ÂM GHÉP (phu_am) ===
+        // === PHU ÂM GHÉP ĐẦU (phu_am) ===
         { word: "ch", mean: "辅音 ch", group: "phu_am", file: "ch.mp3" },
         { word: "kh", mean: "辅音 kh", group: "phu_am", file: "kh.mp3" },
         { word: "th", mean: "辅音 th", group: "phu_am", file: "th.mp3" },
@@ -422,145 +428,154 @@
         { word: "gi", mean: "辅音 gi", group: "phu_am", file: "gi.mp3" },
         { word: "ngh", mean: "辅音 ngh", group: "phu_am", file: "ngh.mp3" },
 
-        // === NHÓM VẦN A (a) ===
+        // === NHÓM VẦN PHÁT TRIỂN TỪ NGUYÊN ÂM A (a) ===
         { word: "ia", mean: "韵母 ia", group: "a", file: "ia.mp3" },
-        { word: "ua", mean: "韵母 ua", group: "a", file: "ua.mp3" },
-        { word: "ưa", mean: "韵母 ưa", group: "a", file: "ưa.mp3" },
         { word: "ao", mean: "韵母 ao", group: "a", file: "ao.mp3" },
-        { word: "eo", mean: "韵母 eo", group: "a", file: "eo.mp3" },
-        { word: "au", mean: "韵母 au", group: "a", file: "au.mp3" },
-        { word: "êu", mean: "韵母 êu", group: "a", file: "êu.mp3" },
-        { word: "iu", mean: "韵母 iu", group: "a", file: "iu.mp3" },
-        { word: "ưu", mean: "韵母 ưu", group: "a", file: "ưu.mp3" },
         { word: "ai", mean: "韵母 ai", group: "a", file: "ai.mp3" },
-        { word: "oi", mean: "韵母 oi", group: "a", file: "oi.mp3" },
-        { word: "ôi", mean: "韵母 ôi", group: "a", file: "ôi.mp3" },
-        { word: "ơi", mean: "韵母 ơi", group: "a", file: "ơi.mp3" },
-        { word: "ui", mean: "韵母 ui", group: "a", file: "ui.mp3" },
+        { word: "am", mean: "韵母 am", group: "a", file: "am.mp3" },
+        { word: "an", mean: "韵母 an", group: "a", file: "an.mp3" },
+        { word: "ang", mean: "韵母 ang", group: "a", file: "ang.mp3" },
+        { word: "ap", mean: "韵母 ap", group: "a", file: "ap.mp3" },
+        { word: "at", mean: "韵母 at", group: "a", file: "at.mp3" },
+        { word: "ac", mean: "韵母 ac", group: "a", file: "ac.mp3" },
+        { word: "anh", mean: "韵母 anh", group: "a", file: "anh.mp3" },
+        { word: "ach", mean: "韵母 ach", group: "a", file: "ach.mp3" },
+        { word: "oa", mean: "韵母 oa", group: "a", file: "oa.mp3" },
+        { word: "oai", mean: "韵母 oai", group: "a", file: "oai.mp3" },
+        { word: "oac", mean: "韵母 oac", group: "a", file: "oac.mp3" },
+        { word: "oat", mean: "韵母 oat", group: "a", file: "oat.mp3" },
+        { word: "oan", mean: "韵母 oan", group: "a", file: "oan.mp3" },
+        { word: "oam", mean: "韵母 oam", group: "a", file: "oam.mp3" },
+        { word: "oap", mean: "韵母 oap", group: "a", file: "oap.mp3" },
+        { word: "oang", mean: "韵母 oang", group: "a", file: "oang.mp3" },
+        { word: "oanh", mean: "韵母 oanh", group: "a", file: "oanh.mp3" },
 
-        // === NHÓM VẦN E (e) ===
-        { word: "ưi", mean: "韵母 ưi", group: "e", file: "ưi.mp3" },
+        // === NHÓM VẦN PHÁT TRIỂN TỪ NGUYÊN ÂM Ă (ă) ===
+        { word: "ăm", mean: "韵母 ăm", group: "ă", file: "ăm.mp3" },
+        { word: "ăn", mean: "韵母 ăn", group: "ă", file: "ăn.mp3" },
+        { word: "ăng", mean: "韵母 ăng", group: "ă", file: "ăng.mp3" },
+        { word: "ăp", mean: "韵母 ăp", group: "ă", file: "ăp.mp3" },
+        { word: "ăt", mean: "韵母 ăt", group: "ă", file: "ăt.mp3" },
+        { word: "ăc", mean: "韵母 ăc", group: "ă", file: "ăc.mp3" },
+        { word: "oăt", mean: "韵母 oăt", group: "ă", file: "oăt.mp3" },
+        { word: "oăng", mean: "韵母 oăng", group: "ă", file: "oăng.mp3" },
+
+        // === NHÓM VẦN PHÁT TRIỂN TỪ NGUYÊN ÂM Â (â) ===
+        { word: "ây", mean: "韵母 ây", group: "â", file: "ây.mp3" },
+        { word: "âm", mean: "韵母 âm", group: "â", file: "âm.mp3" },
+        { word: "ân", mean: "韵母 ân", group: "â", file: "ân.mp3" },
+        { word: "âng", mean: "韵母 nâng", group: "â", file: "âng.mp3" },
+        { word: "âp", mean: "韵母 âp", group: "â", file: "âp.mp3" },
+        { word: "ât", mean: "韵母 ât", group: "â", file: "ât.mp3" },
+        { word: "uân", mean: "韵母 uân", group: "â", file: "uân.mp3" },
+        { word: "uât", mean: "韵母 uât", group: "â", file: "uât.mp3" },
+        { word: "uâng", mean: "韵母 uâng", group: "â", file: "uâng.mp3" },
+
+        // === NHÓM VẦN PHÁT TRIỂN TỪ NGUYÊN ÂM E (e) ===
+        { word: "eo", mean: "韵母 eo", group: "e", file: "eo.mp3" },
         { word: "ay", mean: "韵母 ay", group: "e", file: "ay.mp3" },
-        { word: "ây", mean: "韵母 ây", group: "e", file: "ây.mp3" },
-        { word: "ac", mean: "韵母 ac", group: "e", file: "ac.mp3" },
-        { word: "ăc", mean: "韵母 ăc", group: "e", file: "ăc.mp3" },
-        { word: "oc", mean: "韵母 oc", group: "e", file: "oc.mp3" },
-        { word: "ôc", mean: "韵母 ôc", group: "e", file: "ôc.mp3" },
-        { word: "uc", mean: "韵母 uc", group: "e", file: "uc.mp3" },
-        { word: "ưc", mean: "韵母 ưc", group: "e", file: "ưc.mp3" },
-        { word: "at", mean: "韵母 at", group: "e", file: "at.mp3" },
-        { word: "ăt", mean: "韵母 ăt", group: "e", file: "ăt.mp3" },
-        { word: "ât", mean: "韵母 ât", group: "e", file: "ât.mp3" },
+        { word: "em", mean: "韵母 em", group: "e", file: "em.mp3" },
+        { word: "en", mean: "韵母 en", group: "e", file: "en.mp3" },
+        { word: "ep", mean: "韵母 ep", group: "e", file: "ep.mp3" },
         { word: "et", mean: "韵母 et", group: "e", file: "et.mp3" },
-        { word: "êt", mean: "韵母 êt", group: "e", file: "êt.mp3" },
+        { word: "oe", mean: "韵母 oe", group: "e", file: "oe.mp3" },
+        { word: "oay", mean: "韵母 oay", group: "e", file: "oay.mp3" },
+        { word: "oeo", mean: "韵母 oeo", group: "e", file: "oeo.mp3" },
 
-        // === NHÓM VẦN I (i) ===
-        { word: "it", mean: "韵母 it", group: "i", file: "it.mp3" },
-        { word: "ot", mean: "韵母 ot", group: "i", file: "ot.mp3" },
-        { word: "ôt", mean: "韵母 ôt", group: "i", file: "ôt.mp3" },
-        { word: "ơt", mean: "韵母 ơt", group: "i", file: "ơt.mp3" },
-        { word: "ut", mean: "韵母 ut", group: "i", file: "ut.mp3" },
-        { word: "ứt", mean: "韵母 ứt", group: "i", file: "ứt.mp3" },
-        { word: "an", mean: "韵母 an", group: "i", file: "an.mp3" },
-        { word: "ăn", mean: "韵母 ăn", group: "i", file: "ăn.mp3" },
-        { word: "ân", mean: "韵母 ân", group: "i", file: "ân.mp3" },
-        { word: "en", mean: "韵母 en", group: "i", file: "en.mp3" },
-        { word: "ên", mean: "韵母 ên", group: "i", file: "ên.mp3" },
-        { word: "in", mean: "韵母 in", group: "i", file: "in.mp3" },
-        { word: "on", mean: "韵母 on", group: "i", file: "on.mp3" },
-        { word: "ôn", mean: "韵母 ôn", group: "i", file: "ôn.mp3" },
-        { word: "ơn", mean: "韵母 ơn", group: "i", file: "ơn.mp3" },
+        // === NHÓM VẦN PHÁT TRIỂN TỪ NGUYÊN ÂM Ê (ê) ===
+        { word: "êu", mean: "韵母 êu", group: "ê", file: "êu.mp3" },
+        { word: "êm", mean: "韵母 êm", group: "ê", file: "êm.mp3" },
+        { word: "ên", mean: "韵母 ên", group: "ê", file: "ên.mp3" },
+        { word: "êch", mean: "韵母 êch", group: "ê", file: "êch.mp3" },
+        { word: "êp", mean: "韵母 êp", group: "ê", file: "êp.mp3" },
+        { word: "êt", mean: "韵母 êt", group: "ê", file: "êt.mp3" },
+        { word: "ênh", mean: "韵母 ênh", group: "ê", file: "ênh.mp3" },
+        { word: "uê", mean: "韵母 uê", group: "ê", file: "uê.mp3" },
 
-        // === NHÓM VẦN O (o) ===
-        { word: "un", mean: "韵母 un", group: "o", file: "un.mp3" },
-        { word: "ang", mean: "韵母 ang", group: "o", file: "ang.mp3" },
-        { word: "ăng", mean: "韵母 ăng", group: "o", file: "ăng.mp3" },
-        { word: "âng", mean: "韵母 nâng", group: "o", file: "âng.mp3" },
+        // === NHÓM VẦN PHÁT TRIỂN TỪ NGUYÊN ÂM O (o) ===
+        { word: "oi", mean: "韵母 oi", group: "o", file: "oi.mp3" },
+        { word: "on", mean: "韵母 on", group: "o", file: "on.mp3" },
         { word: "ong", mean: "韵母 ong", group: "o", file: "ong.mp3" },
-        { word: "ông", mean: "韵母 ông", group: "o", file: "ông.mp3" },
-        { word: "ung", mean: "韵母 ung", group: "o", file: "ung.mp3" },
-        { word: "ưng", mean: "韵母 ưng", group: "o", file: "ưng.mp3" },
-        { word: "ach", mean: "韵母 ach", group: "o", file: "ach.mp3" },
-        { word: "êch", mean: "韵母 êch", group: "o", file: "êch.mp3" },
-        { word: "ich", mean: "韵母 ich", group: "o", file: "ich.mp3" },
-        { word: "am", mean: "韵母 am", group: "o", file: "am.mp3" },
-        { word: "ăm", mean: "韵母 ăm", group: "o", file: "ăm.mp3" },
-        { word: "âm", mean: "韵母 âm", group: "o", file: "âm.mp3" },
-        { word: "em", mean: "韵母 em", group: "o", file: "em.mp3" },
+        { word: "op", mean: "韵母 op", group: "o", file: "op.mp3" },
+        { word: "ot", mean: "韵母 ot", group: "o", file: "ot.mp3" },
+        { word: "oc", mean: "韵母 oc", group: "o", file: "oc.mp3" },
+        { word: "oong", mean: "韵母 oong", group: "o", file: "oong.mp3" },
 
-        // === NHÓM VẦN U (u) ===
-        { word: "êm", mean: "韵母 êm", group: "u", file: "êm.mp3" },
-        { word: "om", mean: "韵母 om", group: "u", file: "om.mp3" },
-        { word: "ôm", mean: "韵母 ôm", group: "u", file: "ôm.mp3" },
-        { word: "ơm", mean: "韵母 ơm", group: "u", file: "ơm.mp3" },
-        { word: "im", mean: "韵母 im", group: "u", file: "im.mp3" },
+        // === NHÓM VẦN PHÁT TRIỂN TỪ NGUYÊN ÂM Ô (ô) ===
+        { word: "ôi", mean: "韵母 ôi", group: "ô", file: "ôi.mp3" },
+        { word: "ôm", mean: "韵母 ôm", group: "ô", file: "ôm.mp3" },
+        { word: "ôn", mean: "韵母 ôn", group: "ô", file: "ôn.mp3" },
+        { word: "ông", mean: "韵母 ông", group: "ô", file: "ông.mp3" },
+        { word: "ôp", mean: "韵母 ôp", group: "ô", file: "ôp.mp3" },
+        { word: "ôt", mean: "韵母 ôt", group: "ô", file: "ôt.mp3" },
+        { word: "ôc", mean: "韵母 ôc", group: "ô", file: "ôc.mp3" },
+
+        // === NHÓM VẦN PHÁT TRIỂN TỪ NGUYÊN ÂM Ơ (ơ) ===
+        { word: "ơi", mean: "韵母 ơi", group: "ơ", file: "ơi.mp3" },
+        { word: "ơm", mean: "韵母 ơm", group: "ơ", file: "ơm.mp3" },
+        { word: "ơn", mean: "韵母 ơn", group: "ơ", file: "ơn.mp3" },
+        { word: "ơp", mean: "韵母 ơp", group: "ơ", file: "ơp.mp3" },
+        { word: "ơt", mean: "韵母 ơt", group: "ơ", file: "ơt.mp3" },
+
+        // === NHÓM VẦN PHÁT TRIỂN TỪ NGUYÊN ÂM I & Y (i_y) ===
+        { word: "iu", mean: "韵母 iu", group: "i_y", file: "iu.mp3" },
+        { word: "im", mean: "韵母 im", group: "i_y", file: "im.mp3" },
+        { word: "in", mean: "韵母 in", group: "i_y", file: "in.mp3" },
+        { word: "ip", mean: "韵母 ip", group: "i_y", file: "ip.mp3" },
+        { word: "it", mean: "韵母 it", group: "i_y", file: "it.mp3" },
+        { word: "ich", mean: "韵母 ich", group: "i_y", file: "ich.mp3" },
+        { word: "inh", mean: "韵母 inh", group: "i_y", file: "inh.mp3" },
+        { word: "iêu", mean: "韵母 iêu", group: "i_y", file: "iêu.mp3" },
+        { word: "yêu", mean: "韵母 yêu", group: "i_y", file: "yêu.mp3" },
+        { word: "iêc", mean: "韵母 iêc", group: "i_y", file: "iêc.mp3" },
+        { word: "iêt", mean: "韵母 iêt", group: "i_y", file: "iêt.mp3" },
+        { word: "yêt", mean: "韵母 yêt", group: "i_y", file: "yêt.mp3" },
+        { word: "iên", mean: "韵母 iên", group: "i_y", file: "iên.mp3" },
+        { word: "yên", mean: "韵母 yên", group: "i_y", file: "yên.mp3" },
+        { word: "iêm", mean: "韵母 iêm", group: "i_y", file: "iêm.mp3" },
+        { word: "yêm", mean: "韵母 yêm", group: "i_y", file: "yêm.mp3" },
+        { word: "iêp", mean: "韵母 iêp", group: "i_y", file: "iêp.mp3" },
+        { word: "uy", mean: "韵母 uy", group: "i_y", file: "uy.mp3" },
+        { word: "uyt", mean: "韵母 uyt", group: "i_y", file: "uyt.mp3" },
+        { word: "uyp", mean: "韵母 uyp", group: "i_y", file: "uyp.mp3" },
+        { word: "iêng", mean: "韵母 iêng", group: "i_y", file: "iêng.mp3" },
+        { word: "yêng", mean: "韵母 yêng", group: "i_y", file: "yêng.mp3" },
+        { word: "uyên", mean: "韵母 uyên", group: "i_y", file: "uyên.mp3" },
+        { word: "uyêt", mean: "韵母 uyêt", group: "i_y", file: "uyêt.mp3" },
+        { word: "uynh", mean: "韵母 uynh", group: "i_y", file: "uynh.mp3" },
+        { word: "uych", mean: "韵母 uych", group: "i_y", file: "uych.mp3" },
+
+        // === NHÓM VẦN PHÁT TRIỂN TỪ NGUYÊN ÂM U (u) ===
+        { word: "ua", mean: "韵母 ua", group: "u", file: "ua.mp3" },
+        { word: "ui", mean: "韵母 ui", group: "u", file: "ui.mp3" },
         { word: "um", mean: "韵母 um", group: "u", file: "um.mp3" },
-        { word: "ap", mean: "韵母 ap", group: "u", file: "ap.mp3" },
-        { word: "ăp", mean: "韵母 ăp", group: "u", file: "ăp.mp3" },
-        { word: "âp", mean: "韵母 âp", group: "u", file: "âp.mp3" },
-        { word: "ep", mean: "韵母 ep", group: "u", file: "ep.mp3" },
-        { word: "êp", mean: "韵母 êp", group: "u", file: "êp.mp3" },
-        { word: "op", mean: "韵母 op", group: "u", file: "op.mp3" },
-        { word: "ôp", mean: "韵母 ôp", group: "u", file: "ôp.mp3" },
-        { word: "ơp", mean: "韵母 ơp", group: "u", file: "ơp.mp3" },
-        { word: "ip", mean: "韵母 ip", group: "u", file: "ip.mp3" },
-
-        // === PHẦN VẦN PHỨC HỢP ===
+        { word: "un", mean: "韵母 un", group: "u", file: "un.mp3" },
+        { word: "ung", mean: "韵母 ung", group: "u", file: "ung.mp3" },
         { word: "up", mean: "韵母 up", group: "u", file: "up.mp3" },
-        { word: "anh", mean: "韵母 anh", group: "u", file: "anh.mp3" },
-        { word: "ênh", mean: "韵母 ênh", group: "u", file: "ênh.mp3" },
-        { word: "inh", mean: "韵母 inh", group: "u", file: "inh.mp3" },
-        { word: "iêu", mean: "韵母 iêu", group: "u", file: "iêu.mp3" },
-        { word: "yêu", mean: "韵母 yêu", group: "u", file: "yêu.mp3" },
+        { word: "ut", mean: "韵母 ut", group: "u", file: "ut.mp3" },
+        { word: "uc", mean: "韵母 uc", group: "u", file: "uc.mp3" },
         { word: "uôi", mean: "韵母 uôi", group: "u", file: "uôi.mp3" },
-        { word: "ươi", mean: "韵母 ươi", group: "u", file: "ươi.mp3" },
-        { word: "iêc", mean: "韵母 iêc", group: "u", file: "iêc.mp3" },
         { word: "uôc", mean: "韵母 uôc", group: "u", file: "uôc.mp3" },
-        { word: "ươc", mean: "韵母 ươc", group: "u", file: "ươc.mp3" },
-        { word: "iêt", mean: "韵母 iêt", group: "u", file: "iêt.mp3" },
-        { word: "yêt", mean: "韵母 yêt", group: "u", file: "yêt.mp3" },
         { word: "uôt", mean: "韵母 uôt", group: "u", file: "uôt.mp3" },
-        { word: "ươt", mean: "韵母 ươt", group: "u", file: "ươt.mp3" },
-        { word: "iên", mean: "韵母 iên", group: "u", file: "iên.mp3" },
-        { word: "yên", mean: "韵母 yên", group: "u", file: "yên.mp3" },
         { word: "uôn", mean: "韵母 uôn", group: "u", file: "uôn.mp3" },
-        { word: "ươn", mean: "韵母 ươn", group: "u", file: "ươn.mp3" },
-        { word: "iêm", mean: "韵母 iêm", group: "u", file: "iêm.mp3" },
-        { word: "yêm", mean: "韵母 yêm", group: "u", file: "yêm.mp3" },
         { word: "uôm", mean: "韵母 uôm", group: "u", file: "uôm.mp3" },
-        { word: "iêp", mean: "韵母 iêp", group: "u", file: "iêp.mp3" },
-        { word: "ươp", mean: "韵母 ươp", group: "u", file: "ươp.mp3" },
-        { word: "oa", mean: "韵母 oa", group: "u", file: "oa.mp3" },
-        { word: "oe", mean: "韵母 oe", group: "u", file: "oe.mp3" },
-        { word: "uê", mean: "韵母 uê", group: "u", file: "uê.mp3" },
-        { word: "uy", mean: "韵母 uy", group: "u", file: "uy.mp3" },
-        { word: "oai", mean: "韵母 oai", group: "u", file: "oai.mp3" },
-        { word: "oay", mean: "韵母 oay", group: "u", file: "oay.mp3" },
-        { word: "oac", mean: "韵母 oac", group: "u", file: "oac.mp3" },
-        { word: "oat", mean: "韵母 oat", group: "u", file: "oat.mp3" },
-        { word: "oan", mean: "韵母 oan", group: "u", file: "oan.mp3" },
-        { word: "uân", mean: "韵母 uân", group: "u", file: "uân.mp3" },
-        { word: "uyt", mean: "韵母 uyt", group: "u", file: "uyt.mp3" },
-        { word: "oăt", mean: "韵母 oăt", group: "u", file: "oăt.mp3" },
-        { word: "uât", mean: "韵母 uât", group: "u", file: "uât.mp3" },
-        { word: "oam", mean: "韵母 oam", group: "u", file: "oam.mp3" },
-        { word: "oap", mean: "韵母 oap", group: "u", file: "oap.mp3" },
-        { word: "uyp", mean: "韵母 uyp", group: "u", file: "uyp.mp3" },
-        { word: "oeo", mean: "韵母 oeo", group: "u", file: "oeo.mp3" },
-        { word: "uyu", mean: "韵母 uyu", group: "u", file: "uyu.mp3" },
-        { word: "iêng", mean: "韵母 iêng", group: "u", file: "iêng.mp3" },
-        { word: "yêng", mean: "韵母 yêng", group: "u", file: "yêng.mp3" },
         { word: "uông", mean: "韵母 uông", group: "u", file: "uông.mp3" },
-        { word: "ương", mean: "韵母 hương", group: "u", file: "ương.mp3" },
-        { word: "oang", mean: "韵母 oang", group: "u", file: "oang.mp3" },
-        { word: "uyên", mean: "韵母 uyên", group: "u", file: "uyên.mp3" },
-        { word: "uyêt", mean: "韵母 uyêt", group: "u", file: "uyêt.mp3" },
-        { word: "oanh", mean: "韵母 oanh", group: "u", file: "oanh.mp3" },
-        { word: "uynh", mean: "韵母 uynh", group: "u", file: "uynh.mp3" },
-        { word: "uych", mean: "韵母 uych", group: "u", file: "uych.mp3" },
-        { word: "oăng", mean: "韵母 oăng", group: "u", file: "oăng.mp3" },
-        { word: "uâng", mean: "韵母 uâng", group: "u", file: "uâng.mp3" },
-        { word: "oong", mean: "韵母 oong", group: "u", file: "oong.mp3" }
+        { word: "uyu", mean: "韵母 uyu", group: "u", file: "uyu.mp3" },
+
+        // === NHÓM VẦN PHÁT TRIỂN TỪ NGUYÊN ÂM Ư (ư) ===
+        { word: "ưa", mean: "韵母 ưa", group: "ư", file: "ưa.mp3" },
+        { word: "ưu", mean: "韵母 ưu", group: "ư", file: "ưu.mp3" },
+        { word: "ưi", mean: "韵母 ưi", group: "ư", file: "ưi.mp3" },
+        { word: "ưng", mean: "韵母 ưng", group: "ư", file: "ưng.mp3" },
+        { word: "ưt", mean: "韵母 ưt", group: "ư", file: "ut.mp3" }, /* Dùng chung tài nguyên */
+        { word: "ứt", mean: "韵母 ứt", group: "ư", file: "ứt.mp3" },
+        { word: "ưc", mean: "韵母 ưc", group: "ư", file: "ưc.mp3" },
+        { word: "ươi", mean: "韵母 ươi", group: "ư", file: "ươi.mp3" },
+        { word: "ươc", mean: "韵母 ươc", group: "ư", file: "ươc.mp3" },
+        { word: "ươt", mean: "韵母 ươt", group: "ư", file: "ươt.mp3" },
+        { word: "ươn", mean: "韵母 ươn", group: "ư", file: "ươn.mp3" },
+        { word: "ươp", mean: "韵母 ươp", group: "ư", file: "ươp.mp3" },
+        { word: "ương", mean: "韵母 hương", group: "ư", file: "ương.mp3" }
     ];
 
     let activeGroups = ["chu_cai", "phu_am"];
@@ -571,7 +586,6 @@
     let currentCompareIdx = 0;
     let isComparePlaying = false;
 
-    // Khởi chạy hệ thống đồng bộ trực tiếp
     window.onload = function() {
         renderTags();
         applyFilters();
@@ -642,7 +656,7 @@
             currentCompareIdx++;
             setTimeout(() => {
                 playNextCompareTrack(player);
-            }, 600); // Khoảng nghỉ giữa các từ
+            }, 600);
         };
     }
 
