@@ -5,7 +5,6 @@
 
 :root {
     --primary-color: #5c4cf4;
-    --secondary-color: #2196F3;
     --accent-color: #FF9800;
     --bg-color: #f5f7fa;
     --card-bg: #ffffff;
@@ -29,6 +28,7 @@ body {
     text-align: left;
 }
 
+/* KHỐI CẤU HÌNH */
 .config-section {
     display: block;
     background: var(--card-bg);
@@ -38,326 +38,84 @@ body {
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
-.section-title {
-    font-size: 14px;
-    font-weight: bold;
-    margin-bottom: 8px;
-    color: #555;
-}
+.section-title { font-size: 14px; font-weight: bold; margin-bottom: 8px; color: #555; }
 
 .tag-container {
-    display: block;
-    border: 1px solid #ddd;
-    padding: 6px;
-    border-radius: 8px;
-    background: #fff;
-    margin-bottom: 10px;
-    min-height: 40px;
-    text-align: left;
+    display: block; border: 1px solid #ddd; padding: 6px; border-radius: 8px;
+    background: #fff; margin-bottom: 10px; min-height: 40px; text-align: left;
 }
 
 .tag-item {
-    display: inline-block;
-    background: #ff4d4f;
-    color: white;
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: bold;
-    margin: 3px;
-    cursor: pointer;
+    display: inline-block; background: #ff4d4f; color: white; padding: 4px 8px;
+    border-radius: 6px; font-size: 13px; font-weight: bold; margin: 3px; cursor: pointer;
 }
 
-.tag-item span { font-size: 11px; opacity: 0.8; margin-left: 3px; }
-.round-select-box { display: block; margin-bottom: 10px; }
-
 select, button {
-    display: block;
-    width: 100%;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: bold;
-    border: none;
-    cursor: pointer;
-    margin-bottom: 8px;
+    display: block; width: 100%; padding: 12px; border-radius: 8px;
+    font-size: 15px; font-weight: bold; border: none; cursor: pointer; margin-bottom: 8px;
 }
 
 select { background-color: #fff; border: 1px solid #ddd; height: 45px; }
 .btn-shuffle { background-color: #f5f5f5; color: #333; border: 1px solid #ddd; }
-.btn-shuffle:active { background-color: #e8e8e8; }
 
-.network-status {
-    font-size: 11px;
-    color: #2196F3;
-    text-align: center;
-    margin-top: 4px;
-    margin-bottom: 2px;
-    font-weight: bold;
-}
-
+/* THẺ FLASHCARD 3D */
 .card-section {
-    display: block;
-    background: var(--card-bg);
-    border-radius: 16px;
-    padding: 15px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    display: block; background: var(--card-bg); border-radius: 16px;
+    padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative;
 }
 
-.progress-text { font-size: 13px; color: #888; text-align: right; margin-bottom: 8px; }
-
-.flashcard-wrapper {
-    perspective: 1000px;
-    display: block;
-    width: 100%;
-    height: 160px;
-    margin-bottom: 12px;
-}
-
+.flashcard-wrapper { perspective: 1000px; display: block; width: 100%; height: 160px; margin-bottom: 12px; }
 .flashcard-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    transition: transform 0.5s ease-in-out;
-    transform-style: preserve-3d;
-    cursor: pointer;
+    position: relative; width: 100%; height: 100%; text-align: center;
+    transition: transform 0.5s ease-in-out; transform-style: preserve-3d; cursor: pointer;
 }
-
-.flashcard-inner.is-flipped {
-    transform: rotateY(180deg);
-}
+.flashcard-inner.is-flipped { transform: rotateY(180deg); }
 
 .card-face {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    border-radius: 16px;
-    padding: 15px;
+    position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
+    -webkit-backface-visibility: hidden; border-radius: 16px; padding: 15px;
 }
 
-.card-cell-helper {
-    display: table;
-    width: 100%;
-    height: 100%;
-}
-.card-content-box {
-    display: table-cell;
-    vertical-align: middle;
-    text-align: center;
-}
+.card-cell-helper { display: table; width: 100%; height: 100%; }
+.card-content-box { display: table-cell; vertical-align: middle; text-align: center; }
 
-.card-front {
-    background: linear-gradient(135deg, #614cf4, #914cf4);
-    color: white;
-}
+.card-front { background: linear-gradient(135deg, #614cf4, #914cf4); color: white; }
+.card-back { background: #ffffff; color: #333333; border: 2px solid #614cf4; transform: rotateY(180deg); }
 
-.display-title { font-size: 18px; font-weight: bold; margin: 0 0 4px 0; }
-.display-sub { font-size: 12px; opacity: 0.85; margin: 0; }
-.hint-text { font-size: 22px; font-weight: bold; margin-top: 10px; color: rgba(255,255,255,0.7); }
+.revealed-word { font-size: 38px; font-weight: bold; color: #5c4cf4; margin: 0; }
 
-.card-back {
-    background: #ffffff;
-    color: #333333;
-    border: 2px solid #614cf4;
-    transform: rotateY(180deg);
-}
-
-.revealed-word { font-size: 38px; font-weight: bold; color: #5c4cf4; margin: 0; line-height: 1.2; }
-.revealed-mean { font-size: 15px; color: #666; margin: 6px 0 0 0; font-weight: 500; }
-
-.action-table {
-    display: table;
-    width: 100%;
-    margin-bottom: 12px;
-    border-collapse: separate;
-    border-spacing: 8px 0;
-}
-.action-cell {
-    display: table-cell;
-    width: 50%;
-}
-.action-cell button {
-    margin-bottom: 0;
-    background: #fff;
-    border: 1px solid #ddd;
-    color: #333;
-    font-size: 14px;
-}
-.action-cell button:active { background: #f9f9f9; }
-
-.input-label { font-size: 13px; font-weight: bold; margin-bottom: 6px; }
-.input-label span { color: #ff4d4f; }
-
-input[type="text"] {
-    display: block;
-    width: 100%; 
-    padding: 12px; 
-    border-radius: 8px;
-    border: 1px solid #ccc; 
-    font-size: 16px; 
-    text-align: center;
-}
-
-.result-message { font-size: 14px; font-weight: bold; margin-top: 6px; min-height: 18px; text-align: center; }
-.result-success { color: #4CAF50; }
-.result-error { color: #F44336; }
-
-.nav-table {
-    display: table;
-    width: 100%;
-    margin-top: 10px;
-    border-collapse: separate;
-    border-spacing: 10px 0;
-}
-.nav-cell {
-    display: table-cell;
-    width: 50%;
-}
-.nav-cell button { margin-bottom: 0; }
-.btn-prev { background: #f5f5f5; color: #888; border: 1px solid #e8e8e8; }
-.btn-next { background: #5c4cf4; color: white; }
-/* ======================================================== */
-/* ⚙️ THIẾT KẾ MENU 3 CHẤM THẢ XUỐNG (DROPDOWN MENU) */
-/* ======================================================== */
-/* ======================================================== */
-/* 🚪 GIAO DIỆN CỬA SỔ TÍNH NĂNG SO SÁNH ĐỘC LẬP (MODAL) */
-/* ======================================================== */
-
-/* Nút mũi tên mở tính năng trên màn hình chính */
+/* NÚT MŨI TÊN MỞ SO SÁNH */
 .btn-open-compare {
-    position: absolute;
-    top: 12px;
-    left: 15px;
-    width: auto !important;
-    padding: 6px 12px !important;
-    margin-bottom: 0 !important;
-    background: #FF9800 !important;
-    color: white !important;
-    font-size: 13px !important;
-    border-radius: 20px !important;
-    z-index: 10;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    position: absolute; top: 12px; left: 15px; width: auto !important;
+    padding: 6px 12px !important; margin-bottom: 0 !important;
+    background: var(--accent-color) !important; color: white !important;
+    font-size: 13px !important; border-radius: 20px !important; z-index: 10;
 }
 
-/* Khung cửa sổ Popup độc lập */
+/* CỬA SỔ POPUP SO SÁNH (MODAL) */
 .compare-modal {
-    display: none; /* Ẩn mặc định */
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: #f5f7fa;
-    z-index: 9999;
-    padding: 15px;
-    box-sizing: border-box;
-    overflow-y: auto;
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: #f5f7fa; z-index: 9999; padding: 15px; overflow-y: auto;
 }
-
-/* Thanh đầu đề của cửa sổ */
 .compare-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px solid #5c4cf4;
-    padding-bottom: 10px;
-    margin-bottom: 12px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 2px solid #5c4cf4; padding-bottom: 10px; margin-bottom: 12px;
 }
-.compare-modal-header h3 {
-    margin: 0;
-    font-size: 16px;
-    color: #5c4cf4;
-}
-.btn-close-modal {
-    width: auto !important;
-    margin-bottom: 0 !important;
-    padding: 6px 12px !important;
-    background: #666 !important;
-    color: white !important;
-    font-size: 13px !important;
-}
-
-.tip-text {
-    font-size: 13px;
-    color: #555;
-    margin: 0 0 12px 0;
-    text-align: left;
-}
-
-/* Vùng hiển thị lưới chứa các ô checkbox rộng rãi cho học viên chọn */
 .compare-checkbox-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr); /* Chia đều 4 cột trên điện thoại */
-    gap: 8px;
-    max-height: 50vh; /* Chiếm tối đa 50% chiều cao màn hình */
-    overflow-y: auto;
-    background: #ffffff;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 10px;
-    margin-bottom: 12px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+    max-height: 55vh; overflow-y: auto; background: #fff; border: 1px solid #ddd;
+    border-radius: 10px; padding: 10px; margin-bottom: 12px;
 }
-
 .compare-label-box {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f9f9f9;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    padding: 10px 4px;
-    font-size: 14px;
-    font-weight: bold;
-    cursor: pointer;
-    user-select: none;
+    display: flex; align-items: center; justify-content: center; background: #f9f9f9;
+    border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 2px; font-size: 13px; font-weight: bold;
 }
-.compare-label-box input {
-    margin-right: 4px;
-    transform: scale(1.2); /* Phóng to ô tích chọn để dễ chạm trúng */
-}
+.compare-output-box { background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 12px; }
+.compare-control-panel { display: flex; gap: 8px; }
+.btn-ctrl { flex: 1; color: white !important; }
 
-/* Ô hiển thị danh sách từ đã chọn nghe */
-.compare-output-box {
-    background: #fff;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    margin-bottom: 12px;
-    text-align: left;
-}
-.compare-output-box .box-label {
-    display: block;
-    font-size: 12px;
-    color: #888;
-    margin-bottom: 4px;
-    font-weight: bold;
-}
-.compare-output-box input {
-    width: 100% !important;
-    border: none !important;
-    background: transparent !important;
-    padding: 0 !important;
-    font-size: 16px !important;
-    color: #5c4cf4 !important;
-    font-weight: bold !important;
-    text-align: left !important;
-}
-
-/* Thanh công cụ nút bấm Nghe / Dừng / Xóa */
-.compare-control-panel {
-    display: flex;
-    gap: 8px;
-}
-.btn-ctrl {
-    flex: 1;
-    margin-bottom: 0 !important;
-    padding: 14px 10px !important;
-    font-size: 14px !important;
-    color: white !important;
-}
-.btn-clear { background: #888 !important; }
-.btn-stop { background: #ff4d4f !important; }
-.btn-play { background: #4CAF50 !important; }
+/* BẢNG NÚT BẤM CHÍNH */
+.action-table, .nav-table { display: table; width: 100%; border-collapse: separate; border-spacing: 8px 0; }
+.action-cell, .nav-cell { display: table-cell; width: 50%; }
+input[type="text"] { display: block; width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; text-align: center; }
+.result-message { font-size: 14px; font-weight: bold; margin-top: 6px; min-height: 18px; text-align: center; }
