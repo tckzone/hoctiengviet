@@ -59,7 +59,7 @@
             border-radius: 8px;
             background: #fff;
             margin-bottom: 10px;
-            min-height: 40px;
+            min-height: 44px;
             text-align: left;
         }
 
@@ -567,7 +567,7 @@
         { word: "ưu", mean: "韵母 ưu", group: "ư", file: "ưu.mp3" },
         { word: "ưi", mean: "韵母 ưi", group: "ư", file: "ưi.mp3" },
         { word: "ưng", mean: "韵母 ưng", group: "ư", file: "ưng.mp3" },
-        { word: "ưt", mean: "韵母 ưt", group: "ư", file: "ut.mp3" }, /* Dùng chung tài nguyên */
+        { word: "ưt", mean: "韵母 ưt", group: "ư", file: "ut.mp3" },
         { word: "ứt", mean: "韵母 ứt", group: "ư", file: "ứt.mp3" },
         { word: "ưc", mean: "韵母 ưc", group: "ư", file: "ưc.mp3" },
         { word: "ươi", mean: "韵母 ươi", group: "ư", file: "ươi.mp3" },
@@ -608,6 +608,7 @@
 
     function buildCompareCheckboxGrid() {
         const container = document.getElementById("compareCheckboxContainer");
+        if (!container) return;
         container.innerHTML = "";
         database.forEach((item) => {
             container.innerHTML += `
@@ -650,7 +651,11 @@
         }
         player.src = encodeURI(cloudStorageUrl + selectedCompareFiles[currentCompareIdx]);
         player.load();
-        player.play().catch(e => console.log("Lỗi âm thanh: ", e));
+        
+        let playPromise = player.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(e => console.log("Lỗi âm thanh: ", e));
+        }
 
         player.onended = function() {
             currentCompareIdx++;
@@ -663,8 +668,10 @@
     function stopComparePlayback() {
         isComparePlaying = false;
         const player = document.getElementById("compareAudioPlayer");
-        player.pause();
-        player.src = "";
+        if (player) {
+            player.pause();
+            player.src = "";
+        }
     }
 
     function clearCompareSelection() {
@@ -679,9 +686,15 @@
     // ========================================================
     function renderTags() {
         const box = document.getElementById("tagBox");
+        if (!box) return;
         box.innerHTML = "";
         activeGroups.forEach(g => {
-            let label = g === "chu_cai" ? "字母表" : (g === "phu_am" ? "辅音" : g.toUpperCase() + "组");
+            let label = "";
+            if (g === "chu_cai") label = "字母表";
+            else if (g === "phu_am") label = "辅音";
+            else if (g === "i_y") label = "I/Y组";
+            else label = g.toUpperCase() + "组";
+            
             box.innerHTML += `<div class="tag-item" onclick="removeGroup('${g}')">${label} ✕</div>`;
         });
         if (activeGroups.length === 0) {
@@ -699,6 +712,7 @@
         }
         renderTags();
         applyFilters();
+        document.getElementById("groupAdder").value = ""; // Reset dropdown sau khi chọn
     }
 
     function removeGroup(g) {
@@ -746,7 +760,11 @@
         const finalAudioUrl = cloudStorageUrl + filteredList[idx].file;
         player.src = encodeURI(finalAudioUrl); 
         player.load();
-        player.play().catch(e => console.log("Audio deferred: ", e));
+        
+        let playPromise = player.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(e => console.log("Audio deferred: ", e));
+        }
     }
 
     function shuffleCards() {
