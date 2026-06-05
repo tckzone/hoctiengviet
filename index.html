@@ -157,10 +157,17 @@
 
         .revealed-word { font-size: 38px; font-weight: bold; color: #5c4cf4; margin: 0; line-height: 1.2; }
 
-        .btn-open-compare {
+        /* KHU VỰC CHỨA KHỐI NÚT CHỨC NĂNG PHÍA TRÊN CARD TRONG 1000022535.JPG */
+        .top-action-bar {
             position: absolute;
             top: 12px;
             left: 15px;
+            display: flex;
+            gap: 6px;
+            z-index: 10;
+        }
+
+        .btn-open-compare {
             width: auto !important;
             padding: 6px 14px !important;
             margin-bottom: 0 !important;
@@ -168,10 +175,19 @@
             color: white !important;
             font-size: 13px !important;
             border-radius: 20px !important;
-            z-index: 10;
         }
 
-        /* KHUNGpopup CỬA SỔ SO SÁNH BIỆT LẬP */
+        /* NÚT CHẤM ĐIỂM THÊM MỚI BÊN CẠNH NÚT SO SÁNH */
+        .btn-open-eval {
+            width: auto !important;
+            padding: 6px 14px !important;
+            margin-bottom: 0 !important;
+            background: #4CAF50 !important;
+            color: white !important;
+            font-size: 13px !important;
+            border-radius: 20px !important;
+        }
+
         .compare-modal {
             display: none;
             position: fixed;
@@ -261,6 +277,84 @@
 
         .btn-prev { background: #f5f5f5 !important; color: #888 !important; border: 1px solid #e8e8e8 !important; }
         .btn-next { background: #5c4cf4 !important; color: white !important; }
+
+        /* --- STYLE TOÀN BỘ POPUP CHẤM ĐIỂM VÀ VÒNG TRÒN % --- */
+        .eval-popup-content {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* Thiết kế vùng chứa SVG Vòng tròn điểm số */
+        .circle-score-wrapper {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            margin: 20px auto;
+        }
+        .circle-score-wrapper svg {
+            transform: rotate(-90deg); /* Xoay SVG để tiến trình chạy từ đỉnh trên cùng xuống */
+            width: 130px;
+            height: 130px;
+        }
+        .circle-bg {
+            fill: none;
+            stroke: #f1f1f1;
+            stroke-width: 10;
+        }
+        .circle-progress-bar {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 10;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.4s ease, stroke 0.4s ease;
+        }
+        .circle-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 26px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Nút nhấn ghi âm hình tròn màu xanh lá cây */
+        .btn-round-record {
+            width: 86px !important;
+            height: 86px !important;
+            border-radius: 50% !important;
+            background: #4CAF50;
+            color: white !important;
+            font-size: 26px !important;
+            font-weight: bold !important;
+            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 25px auto 10px auto !important;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+        .btn-round-record:active {
+            transform: scale(0.95);
+        }
+
+        .eval-detail-box {
+            background: #f9f9f9;
+            border: 1px dashed #ddd;
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 15px;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
@@ -298,7 +392,12 @@
         </div>
 
         <div class="card-section">
-            <button class="btn-open-compare" onclick="openCompareWindow()">▶ 发音对比</button>
+            <!-- ĐƯỢC CHỈNH SỬA THÀNH KHỐI CHỨA 2 NÚT NẰM CẠNH NHAU TRÊN THẺ CARD THEO ẢNH 1000022535.JPG -->
+            <div class="top-action-bar">
+                <button class="btn-open-compare" onclick="openCompareWindow()">▶ 发音对比</button>
+                <button class="btn-open-eval" onclick="openEvalPopup()">🎙️ 发音评测</button>
+            </div>
+
             <div class="progress-text">当前进度: <span id="currentProgress">0</span>/<span id="totalProgress">0</span></div>
             
             <div class="flashcard-wrapper">
@@ -306,7 +405,7 @@
                     <div class="card-face card-front">
                         <div class="card-cell-helper">
                             <div class="card-content-box">
-                                <div style="font-size:18px; font-weight:bold;">🎵 听音辨词: 请听发音写单词</div>
+                                <div style="font-size:18px; font-weight:bold;">🎵 听音辨词: 请听发音 write </div>
                                 <div style="font-size:12px; opacity:0.85;">点击卡片或下按钮可翻转查看答案</div>
                                 <div style="font-size:22px; font-weight:bold; margin-top:10px; color:rgba(255,255,255,0.7);">❓ 点击翻转</div>
                             </div>
@@ -329,30 +428,61 @@
             </div>
 
             <div style="font-size:13px; font-weight:bold; margin-bottom:6px;">请输入听到的越南语单词 (按 Enter 提交核对):</div>
-            <input type="text" id="dictationField" placeholder="在此键入拼写后按 Enter 提交核對..." autocomplete="off">
+            <input type="text" id="dictationField" placeholder="在此键入拼写后按 Enter 提交核对..." autocomplete="off">
             <div class="result-message" id="alertBox"></div>
 
-            <div class="nav-table">
+            <div class="nav-table" style="margin-top:15px;">
                 <div class="nav-cell"><button class="btn-prev" onclick="movePointer(-1)">⬅️ 上一个</button></div>
                 <div class="nav-cell"><button class="btn-next" onclick="movePointer(1)">👉 下一個</button></div>
             </div>
         </div>
     </div>
 
+    <!-- POPUP HỘP THOẠI CHẤM ĐIỂM PHÁT ÂM VÒNG TRÒN ĐỔI MÀU (THÊM MỚI) -->
+    <div id="evalPopupModal" class="compare-modal">
+        <div class="compare-modal-header">
+            <h3>🎙️ AI 发音评测 Chấm điểm phát âm</h3>
+            <button class="btn-close-modal" onclick="closeEvalPopup()">✕ 返回学习</button>
+        </div>
+
+        <div class="eval-popup-content">
+            <div style="font-size:14px; color:#444; font-weight:bold;">ĐỘ CHÍNH XÁC PHÁT ÂM (发音准确率)</div>
+            
+            <!-- Thành phần Vòng tròn tiến trình SVG lấp đầy điểm số -->
+            <div class="circle-score-wrapper">
+                <svg>
+                    <circle class="circle-bg" cx="65" cy="65" r="54"></circle>
+                    <circle class="circle-progress-bar" id="svgProgressCircleBar" cx="65" cy="65" r="54" 
+                            stroke-dasharray="339.292" stroke-dashoffset="339.292"></circle>
+                </svg>
+                <div class="circle-text" id="evalCirclePercentText">0%</div>
+            </div>
+
+            <!-- Nút nhấn ghi âm tròn lớn màu xanh lá cây -->
+            <button class="btn-round-record" id="btnEvalRecordTrigger" onclick="toggleEvalRecording()">
+                🎙️<br><span style="font-size:12px;">Nhấn đọc</span>
+            </button>
+            <div style="font-size:12px; color:#999; margin-top:5px;">Bấm nút trên, đợi đổi màu rồi đọc thật to rõ ràng nhé!</div>
+
+            <!-- Vùng bảng hiển thị so sánh chi tiết text khi có kết quả -->
+            <div class="eval-detail-box" id="evalResultDetails" style="visibility: hidden;">
+                <div id="evalResultComparisonText">---</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- POPUP SO SÁNH PHÁT ÂM CŨ -->
     <div id="compareWindowModal" class="compare-modal">
         <div class="compare-modal-header">
             <h3>📊 发音对比工具 (So sánh phát âm)</h3>
             <button class="btn-close-modal" onclick="closeCompareWindow()">✕ 返回学习</button>
         </div>
         <div style="font-size:13px; color:#555; margin-bottom:12px; text-align:left;">💡 请勾选 2 个或以上的单词进行连读对比:</div>
-        
         <div class="compare-checkbox-grid" id="compareCheckboxContainer"></div>
-        
         <div class="compare-output-box">
             <span style="display:block; font-size:12px; color:#888; margin-bottom:4px; font-weight:bold;">播放队列 (Hàng đợi phát):</span>
             <input type="text" id="compareWordsInput" readonly placeholder="未勾选单词...">
         </div>
-        
         <div class="compare-control-panel">
             <button class="btn-ctrl" style="background:#888;" onclick="clearCompareSelection()">🧹 清空已选</button>
             <button class="btn-ctrl" style="background:#ff4d4f;" onclick="stopComparePlayback()">⏹ 停止播放</button>
@@ -364,8 +494,8 @@
 <script>
     const cloudStorageUrl = "https://cdn.jsdelivr.net/gh/tckzone/hoctiengviet@main/";
 
+    // Kho dữ liệu 172 từ chuẩn hóa của bạn
     const database = [
-        // === BẢNG CHỮ CÁI ĐƠN CHUẨN (chu_cai) ===
         { word: "a", mean: "字母 a / A", group: "chu_cai", file: "a.mp3" },
         { word: "ă", mean: "字母 ă / Ă", group: "chu_cai", file: "ă.mp3" },
         { word: "â", mean: "字母 â / Â", group: "chu_cai", file: "â.mp3" },
@@ -395,8 +525,6 @@
         { word: "v", mean: "字母 v / V", group: "chu_cai", file: "v.mp3" },
         { word: "x", mean: "字母 x / X", group: "chu_cai", file: "x.mp3" },
         { word: "y", mean: "字母 y / Y", group: "chu_cai", file: "y.mp3" },
-
-        // === PHỤ ÂM GHÉP ĐẦU (phu_am) ===
         { word: "ch", mean: "辅音 ch", group: "phu_am", file: "ch.mp3" },
         { word: "kh", mean: "辅音 kh", group: "phu_am", file: "kh.mp3" },
         { word: "th", mean: "辅音 th", group: "phu_am", file: "th.mp3" },
@@ -408,8 +536,6 @@
         { word: "tr", mean: "辅音 tr", group: "phu_am", file: "tr.mp3" },
         { word: "gi", mean: "辅音 gi", group: "phu_am", file: "gi.mp3" },
         { word: "ngh", mean: "辅音 ngh", group: "phu_am", file: "ngh.mp3" },
-
-        // === NHÓM VẦN TỪ NGUYÊN ÂM A (a) ===
         { word: "ia", mean: "韵母 ia", group: "a", file: "ia.mp3" },
         { word: "ao", mean: "韵母 ao", group: "a", file: "ao.mp3" },
         { word: "ai", mean: "韵母 ai", group: "a", file: "ai.mp3" },
@@ -430,8 +556,6 @@
         { word: "oap", mean: "韵母 oap", group: "a", file: "oap.mp3" },
         { word: "oang", mean: "韵母 oang", group: "a", file: "oang.mp3" },
         { word: "oanh", mean: "韵母 oanh", group: "a", file: "oanh.mp3" },
-
-        // === NHÓM VẦN TỪ NGUYÊN ÂM Ă (ă) ===
         { word: "ăm", mean: "韵母 ăm", group: "ă", file: "ăm.mp3" },
         { word: "ăn", mean: "韵母 ăn", group: "ă", file: "ăn.mp3" },
         { word: "ăng", mean: "韵母 ăng", group: "ă", file: "ăng.mp3" },
@@ -440,8 +564,6 @@
         { word: "ăc", mean: "韵母 ăc", group: "ă", file: "ăc.mp3" },
         { word: "oăt", mean: "韵母 oăt", group: "ă", file: "oăt.mp3" },
         { word: "oăng", mean: "韵母 oăng", group: "ă", file: "oăng.mp3" },
-
-        // === NHÓM VẦN TỪ NGUYÊN ÂM Â (â) ===
         { word: "ây", mean: "韵母 ây", group: "â", file: "ây.mp3" },
         { word: "âm", mean: "韵母 âm", group: "â", file: "âm.mp3" },
         { word: "ân", mean: "韵母 ân", group: "â", file: "ân.mp3" },
@@ -451,8 +573,6 @@
         { word: "uân", mean: "韵母 uân", group: "â", file: "uân.mp3" },
         { word: "uât", mean: "韵母 uât", group: "â", file: "uât.mp3" },
         { word: "uâng", mean: "韵母 uâng", group: "â", file: "uâng.mp3" },
-
-        // === NHÓM VẦN TỪ NGUYÊN ÂM E (e) ===
         { word: "eo", mean: "韵母 eo", group: "e", file: "eo.mp3" },
         { word: "ay", mean: "韵母 ay", group: "e", file: "ay.mp3" },
         { word: "em", mean: "韵母 em", group: "e", file: "em.mp3" },
@@ -462,8 +582,6 @@
         { word: "oe", mean: "韵母 oe", group: "e", file: "oe.mp3" },
         { word: "oay", mean: "韵母 oay", group: "e", file: "oay.mp3" },
         { word: "oeo", mean: "韵母 oeo", group: "e", file: "oeo.mp3" },
-
-        // === NHÓM VẦN TỪ NGUYÊN ÂM Ê (ê) ===
         { word: "êu", mean: "韵母 êu", group: "ê", file: "êu.mp3" },
         { word: "êm", mean: "韵母 êm", group: "ê", file: "êm.mp3" },
         { word: "ên", mean: "韵母 ên", group: "ê", file: "ên.mp3" },
@@ -472,8 +590,6 @@
         { word: "êt", mean: "韵母 êt", group: "ê", file: "êt.mp3" },
         { word: "ênh", mean: "韵母 ênh", group: "ê", file: "ênh.mp3" },
         { word: "uê", mean: "韵母 uê", group: "ê", file: "uê.mp3" },
-
-        // === NHÓM VẦN TỪ NGUYÊN ÂM O (o) ===
         { word: "oi", mean: "韵母 oi", group: "o", file: "oi.mp3" },
         { word: "on", mean: "韵母 on", group: "o", file: "on.mp3" },
         { word: "ong", mean: "韵母 ong", group: "o", file: "ong.mp3" },
@@ -481,8 +597,6 @@
         { word: "ot", mean: "韵母 ot", group: "o", file: "ot.mp3" },
         { word: "oc", mean: "韵母 oc", group: "o", file: "oc.mp3" },
         { word: "oong", mean: "韵母 oong", group: "o", file: "oong.mp3" },
-
-        // === NHÓM VẦN TỪ NGUYÊN ÂM Ô (ô) ===
         { word: "ôi", mean: "韵母 ôi", group: "ô", file: "ôi.mp3" },
         { word: "ôm", mean: "韵母 ôm", group: "ô", file: "ôm.mp3" },
         { word: "ôn", mean: "韵母 ôn", group: "ô", file: "ôn.mp3" },
@@ -490,15 +604,11 @@
         { word: "ôp", mean: "韵母 ôp", group: "ô", file: "ôp.mp3" },
         { word: "ôt", mean: "韵母 ôt", group: "ô", file: "ôt.mp3" },
         { word: "ôc", mean: "韵母 ôc", group: "ô", file: "ôc.mp3" },
-
-        // === NHÓM VẦN TỪ NGUYÊN ÂM Ơ (ơ) ===
         { word: "ơi", mean: "韵母 ơi", group: "ơ", file: "ơi.mp3" },
         { word: "ơm", mean: "韵母 ơm", group: "ơ", file: "ơm.mp3" },
         { word: "ơn", mean: "韵母 ơn", group: "ơ", file: "ơn.mp3" },
         { word: "ơp", mean: "韵母 ơp", group: "ơ", file: "ơp.mp3" },
         { word: "ơt", mean: "韵母 ơt", group: "ơ", file: "ơt.mp3" },
-
-        // === NHÓM VẦN TỪ NGUYÊN ÂM I & Y (i_y) ===
         { word: "iu", mean: "韵母 iu", group: "i_y", file: "iu.mp3" },
         { word: "im", mean: "韵母 im", group: "i_y", file: "im.mp3" },
         { word: "in", mean: "韵母 in", group: "i_y", file: "in.mp3" },
@@ -525,8 +635,6 @@
         { word: "uyêt", mean: "韵母 uyêt", group: "i_y", file: "uyêt.mp3" },
         { word: "uynh", mean: "韵母 uynh", group: "i_y", file: "uynh.mp3" },
         { word: "uych", mean: "韵母 uych", group: "i_y", file: "uych.mp3" },
-
-        // === NHÓM VẦN TỪ NGUYÊN ÂM U (u) ===
         { word: "ua", mean: "韵母 ua", group: "u", file: "ua.mp3" },
         { word: "ui", mean: "韵母 ui", group: "u", file: "ui.mp3" },
         { word: "um", mean: "韵母 um", group: "u", file: "um.mp3" },
@@ -542,8 +650,6 @@
         { word: "uôm", mean: "韵母 uôm", group: "u", file: "uôm.mp3" },
         { word: "uông", mean: "韵母 uông", group: "u", file: "uông.mp3" },
         { word: "uyu", mean: "韵母 uyu", group: "u", file: "uyu.mp3" },
-
-        // === NHÓM VẦN TỪ NGUYÊN ÂM Ư (ư) ===
         { word: "ưa", mean: "韵母 ưa", group: "ư", file: "ưa.mp3" },
         { word: "ưu", mean: "韵母 ưu", group: "ư", file: "ưu.mp3" },
         { word: "ưi", mean: "韵母 ưi", group: "ư", file: "ưi.mp3" },
@@ -551,7 +657,6 @@
         { word: "ứt", mean: "韵母 ứt", group: "ư", file: "ứt.mp3" },
         { word: "ưc", mean: "韵母 ưc", group: "ư", file: "ưc.mp3" },
         { word: "ươi", mean: "韵母 ươi", group: "ư", file: "ươi.mp3" },
-        { word: "ươu", mean: "韵母 ươu", group: "ư", file: "ươu.mp3" },
         { word: "ươc", mean: "韵母 ươc", group: "ư", file: "ươc.mp3" },
         { word: "ươt", mean: "韵母 ươt", group: "ư", file: "ươt.mp3" },
         { word: "ươn", mean: "韵母 ươn", group: "ư", file: "ươn.mp3" },
@@ -567,64 +672,36 @@
     let currentCompareIdx = 0;
     let isComparePlaying = false;
 
-    // KÍCH HOẠT KHI TRANG WEB SẴN SÀNG
-    window.onload = function() {
+    document.addEventListener("DOMContentLoaded", function() {
         renderTags();
         applyFilters();
         buildCompareCheckboxGrid();
-    };
+    });
 
-    // ========================================================
-    /* ⚙️ XỬ LÝ BỘ LỌC CHỌN NHÓM ÂM CHUẨN XÁC NGUYÊN ÂM */
-    // ========================================================
     function renderTags() {
         const box = document.getElementById("tagBox");
         if (!box) return;
         box.innerHTML = "";
         activeGroups.forEach(g => {
-            let label = "";
-            if (g === "chu_cai") label = "字母表";
-            else if (g === "phu_am") label = "辅音";
-            else if (g === "i_y") label = "I/Y组";
-            else label = g.toUpperCase() + "组";
-            
+            let label = g === "chu_cai" ? "字母表" : g === "phu_am" ? "辅音" : g === "i_y" ? "I/Y组" : g.toUpperCase() + "组";
             box.innerHTML += `<div class="tag-item" onclick="removeGroup('${g}')">${label} ✕</div>`;
         });
-        if (activeGroups.length === 0) {
-            box.innerHTML = `<span style="color:#aaa; font-size:13px;">请选择字母组进行过滤...</span>`;
-        }
+        if (activeGroups.length === 0) box.innerHTML = `<span style="color:#aaa; font-size:13px;">请选择字母组进行过滤...</span>`;
     }
 
     function addGroupFilter(val) {
         if (!val) return;
-        if (val === "all") {
-            activeGroups = ["all"];
-        } else {
-            activeGroups = activeGroups.filter(i => i !== "all");
-            if (!activeGroups.includes(val)) activeGroups.push(val);
-        }
-        renderTags();
-        applyFilters();
-        document.getElementById("groupAdder").value = ""; // Đưa select về trống rỗng
+        if (val === "all") activeGroups = ["all"];
+        else { activeGroups = activeGroups.filter(i => i !== "all"); if (!activeGroups.includes(val)) activeGroups.push(val); }
+        renderTags(); applyFilters();
+        document.getElementById("groupAdder").value = "";
     }
 
-    function removeGroup(g) {
-        activeGroups = activeGroups.filter(i => i !== g);
-        renderTags();
-        applyFilters();
-    }
+    function removeGroup(g) { activeGroups = activeGroups.filter(i => i !== g); renderTags(); applyFilters(); }
 
-    // SỬA LỖI ĐƠ BỘ LỌC: Đảm bảo lọc chuẩn xác theo thuộc tính 'group'
     function applyFilters() {
-        if (activeGroups.length === 0) {
-            filteredList = [];
-        } else if (activeGroups.includes("all")) {
-            filteredList = [...database];
-        } else {
-            filteredList = database.filter(item => activeGroups.includes(item.group));
-        }
-        idx = 0;
-        syncCardUI();
+        filteredList = activeGroups.length === 0 ? [] : activeGroups.includes("all") ? [...database] : database.filter(item => activeGroups.includes(item.group));
+        idx = 0; syncCardUI();
     }
 
     function syncCardUI() {
@@ -639,7 +716,6 @@
             document.getElementById("meanRevealTarget").innerText = "---";
             return;
         }
-
         document.getElementById("currentProgress").innerText = idx + 1;
         document.getElementById("wordRevealTarget").innerText = filteredList[idx].word;
         document.getElementById("meanRevealTarget").innerText = filteredList[idx].mean;
@@ -650,11 +726,8 @@
         if (filteredList.length === 0) return;
         stopComparePlayback();
         const player = document.getElementById("internalAudioPlayer");
-        player.pause();
-        const finalAudioUrl = cloudStorageUrl + filteredList[idx].file;
-        player.src = encodeURI(finalAudioUrl); 
-        player.load();
-        player.play().catch(e => console.log("Audio deferred: ", e));
+        player.src = encodeURI(cloudStorageUrl + filteredList[idx].file); 
+        player.load(); player.play().catch(e => console.log(e));
     }
 
     function shuffleCards() {
@@ -663,130 +736,65 @@
             const j = Math.floor(Math.random() * (i + 1));
             [filteredList[i], filteredList[j]] = [filteredList[j], filteredList[i]];
         }
-        idx = 0;
-        syncCardUI();
+        idx = 0; syncCardUI();
     }
 
-    function flipCard() {
-        if (filteredList.length === 0) return;
-        document.getElementById("cardInner").classList.toggle("is-flipped");
-    }
+    function flipCard() { if (filteredList.length > 0) document.getElementById("cardInner").classList.toggle("is-flipped"); }
+    function movePointer(s) { if (filteredList.length === 0) return; idx = (idx + s + filteredList.length) % filteredList.length; syncCardUI(); }
 
-    function movePointer(s) {
-        if (filteredList.length === 0) return;
-        idx = (idx + s + filteredList.length) % filteredList.length;
-        syncCardUI();
-    }
-
-    // ========================================================
-    /* 🚀 LOGIC CỬA SỔ VÀ TÍNH NĂNG SO SÁNH PHÁT ÂM */
-    // ========================================================
-    function openCompareWindow() {
-        document.getElementById("mainAppZone").style.display = "none";
-        document.getElementById("compareWindowModal").style.display = "block";
-        buildCompareCheckboxGrid(); // Luôn dựng lưới vuông vắn khi mở bảng
-    }
-
-    function closeCompareWindow() {
-        stopComparePlayback();
-        document.getElementById("compareWindowModal").style.display = "none";
-        document.getElementById("mainAppZone").style.display = "block";
-    }
+    function openCompareWindow() { document.getElementById("mainAppZone").style.display = "none"; document.getElementById("compareWindowModal").style.display = "block"; buildCompareCheckboxGrid(); }
+    function closeCompareWindow() { stopComparePlayback(); document.getElementById("compareWindowModal").style.display = "none"; document.getElementById("mainAppZone").style.display = "block"; }
 
     function buildCompareCheckboxGrid() {
-        const container = document.getElementById("compareCheckboxContainer");
-        if (!container) return;
-        container.innerHTML = "";
-        
+        const container = document.getElementById("compareCheckboxContainer"); if (!container) return; container.innerHTML = "";
         database.forEach((item) => {
-            // Giữ lại trạng thái checkbox đã tích trước đó nếu có
             const isChecked = selectedCompareFiles.includes(item.file) ? "checked" : "";
-            container.innerHTML += `
-                <label class="compare-label-box">
-                    <input type="checkbox" value="${item.file}" data-word="${item.word}" ${isChecked} onchange="handleCompareGridChange()">
-                    ${item.word}
-                </label>`;
+            container.innerHTML += `<label class="compare-label-box"><input type="checkbox" value="${item.file}" data-word="${item.word}" ${isChecked} onchange="handleCompareGridChange()">${item.word}</label>`;
         });
     }
 
     function handleCompareGridChange() {
         const checkboxes = document.querySelectorAll("#compareCheckboxContainer input[type='checkbox']");
-        let selectedWords = [];
-        selectedCompareFiles = [];
-        checkboxes.forEach(cb => {
-            if (cb.checked) {
-                selectedWords.push(cb.getAttribute("data-word"));
-                selectedCompareFiles.push(cb.value);
-            }
-        });
+        let selectedWords = []; selectedCompareFiles = [];
+        checkboxes.forEach(cb => { if (cb.checked) { selectedWords.push(cb.getAttribute("data-word")); selectedCompareFiles.push(cb.value); } });
         document.getElementById("compareWordsInput").value = selectedWords.join(" → ");
     }
 
     function startComparePlayback() {
-        if (selectedCompareFiles.length < 2) {
-            alert("请至少勾选 2 个单词进行对比！\n(Vui lòng tích chọn ít nhất từ 2 từ trở lên!)");
-            return;
-        }
-        const player = document.getElementById("compareAudioPlayer");
-        document.getElementById("internalAudioPlayer").pause();
-        currentCompareIdx = 0;
-        isComparePlaying = true;
-        playNextCompareTrack(player);
+        if (selectedCompareFiles.length < 2) { alert("请至少勾选 2 个单词进行对比！"); return; }
+        document.getElementById("internalAudioPlayer").pause(); currentCompareIdx = 0; isComparePlaying = true;
+        playNextCompareTrack(document.getElementById("compareAudioPlayer"));
     }
 
     function playNextCompareTrack(player) {
-        if (!isComparePlaying || currentCompareIdx >= selectedCompareFiles.length) {
-            isComparePlaying = false;
-            return;
-        }
+        if (!isComparePlaying || currentCompareIdx >= selectedCompareFiles.length) { isComparePlaying = false; return; }
         player.src = encodeURI(cloudStorageUrl + selectedCompareFiles[currentCompareIdx]);
-        player.load();
-        player.play().catch(e => console.log("Lỗi âm thanh: ", e));
-
-        player.onended = function() {
-            currentCompareIdx++;
-            setTimeout(() => {
-                playNextCompareTrack(player);
-            }, 600); // Khoảng nghỉ 0.6 giây giữa các từ
-        };
+        player.load(); player.play().catch(e => console.log(e));
+        player.onended = function() { currentCompareIdx++; setTimeout(() => { playNextCompareTrack(player); }, 600); };
     }
 
-    function stopComparePlayback() {
-        isComparePlaying = false;
-        const player = document.getElementById("compareAudioPlayer");
-        if (player) {
-            player.pause();
-            player.src = "";
-        }
-    }
+    function stopComparePlayback() { isComparePlaying = false; const player = document.getElementById("compareAudioPlayer"); if (player) { player.pause(); player.src = ""; } }
+    function clearCompareSelection() { stopComparePlayback(); document.querySelectorAll("#compareCheckboxContainer input[type='checkbox']").forEach(cb => cb.checked = false); document.getElementById("compareWordsInput").value = ""; selectedCompareFiles = []; }
 
-    function clearCompareSelection() {
-        stopComparePlayback();
-        document.querySelectorAll("#compareCheckboxContainer input[type='checkbox']").forEach(cb => cb.checked = false);
-        document.getElementById("compareWordsInput").value = "";
-        selectedCompareFiles = [];
-    }
-
-    // KIỂM TRA ĐÁP ÁN GÕ ENTER
     document.getElementById("dictationField").addEventListener("keydown", function(e) {
         if (e.key === "Enter") {
             e.preventDefault();
             const inputVal = this.value.trim().toLowerCase();
             const answerVal = filteredList[idx].word.toLowerCase();
             const alertElement = document.getElementById("alertBox");
-
             if(inputVal === "") return;
-
             if (inputVal === answerVal) {
-                alertElement.className = "result-message result-success";
-                alertElement.innerText = "🎉 正确！拼写完全一致！";
+                alertElement.className = "result-message result-success"; alertElement.innerText = "🎉 正确！拼写完全一致！";
                 document.getElementById("cardInner").classList.add("is-flipped");
             } else {
-                alertElement.className = "result-message result-error";
-                alertElement.innerText = `❌ 错误！请点击卡片翻转查看正解`;
+                alertElement.className = "result-message result-error"; alertElement.innerText = `❌ 错误！请点击卡片翻转查看正解`;
             }
         }
     });
 </script>
+
+<!-- NHÚNG FILE SCRIPT CHẤM ĐIỂM RIÊNG BIỆT -->
+<script src="voice-eval.js"></script>
+
 </body>
 </html>
