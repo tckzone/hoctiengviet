@@ -439,6 +439,7 @@
     </div>
 
     <!-- POPUP HỘP THOẠI CHẤM ĐIỂM PHÁT ÂM VÒNG TRÒN ĐỔI MÀU (THÊM MỚI) -->
+    <!-- POPUP HỘP THOẠI CHẤM ĐIỂM PHÁT ÂM VÒNG TRÒN ĐỔI MÀU (Cập nhật có danh sách chọn âm mục tiêu) -->
     <div id="evalPopupModal" class="compare-modal">
         <div class="compare-modal-header">
             <h3>🎙️ AI 发音评测 Chấm điểm phát âm</h3>
@@ -446,7 +447,17 @@
         </div>
 
         <div class="eval-popup-content">
-            <div style="font-size:14px; color:#444; font-weight:bold;">ĐỘ CHÍNH XÁC PHÁT ÂM (发音准确率)</div>
+            <!-- DANH SÁCH CHỌN ÂM MUỐN SO SÁNH (MỚI BỔ SUNG) -->
+            <div style="text-align: left; margin-bottom: 15px;">
+                <label for="evalWordSelector" style="display:block; font-size:13px; font-weight:bold; color:#5c4cf4; margin-bottom:5px;">
+                    🎯 选择要评测的音频 (Chọn âm muốn chấm điểm):
+                </label>
+                <select id="evalWordSelector" onchange="handleEvalWordSelectChange(this.value)" style="border: 2px solid #5c4cf4; background-color: #fcfbff;">
+                    <!-- Dữ liệu tùy chọn sẽ được hàm openEvalPopup() tự động đổ vào đây -->
+                </select>
+            </div>
+
+            <div style="font-size:14px; color:#444; font-weight:bold; margin-top: 20px;">ĐỘ CHÍNH XÁC PHÁT ÂM (发音准确率)</div>
             
             <!-- Thành phần Vòng tròn tiến trình SVG lấp đầy điểm số -->
             <div class="circle-score-wrapper">
