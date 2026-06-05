@@ -1,10 +1,11 @@
 /**
- * Hệ thống chấm điểm phát âm giao diện vòng tròn động
- * Phát triển cho dự án học ngôn ngữ của gia đình anh Bùi Bích Nam
+ * Hệ thống chấm điểm phát âm có danh sách chọn từ mục tiêu để so sánh
+ * Phát triển cho dự án của anh Bùi Bích Nam
  */
 
 let evalRecognition = null;
 let isEvalRecording = false;
+let currentEvalTargetWord = ""; // Lưu trữ từ mẫu đang được chọn để so sánh
 
 // Hàm khởi tạo bộ máy nhận diện giọng nói AI
 function initEvalSpeech() {
@@ -22,13 +23,12 @@ function initEvalSpeech() {
 
     evalRecognition.onresult = function(event) {
         const studentText = event.results[0][0].transcript;
-        const targetText = filteredList[idx].word;
         
-        // Tính toán phần trăm tương đồng giữa hai chuỗi ký tự
-        const score = calculateEvalSimilarity(targetText, studentText);
+        // Tính toán phần trăm tương đồng dựa trên từ mẫu đang chọn trong danh sách công cụ
+        const score = calculateEvalSimilarity(currentEvalTargetWord, studentText);
         
         // Cập nhật vòng tròn điểm số trực quan
-        updateScoreCircle(score, studentText, targetText);
+        updateScoreCircle(score, studentText, currentEvalTargetWord);
     };
 
     evalRecognition.onerror = function(event) {
@@ -44,14 +44,31 @@ function initEvalSpeech() {
     };
 }
 
+// Hàm cập nhật từ mẫu khi người dùng thay đổi lựa chọn trong danh sách thả xuống của Popup
+function handleEvalWordSelectChange(selectedValue) {
+    if (!selectedValue) return;
+    currentEvalTargetWord = selectedValue;
+    
+    // Đưa giao diện vòng tròn về trạng thái chuẩn bị ban đầu
+    updateCircleProgress(0, "#ccc");
+    document.getElementById("evalResultDetails").style.visibility = "hidden";
+}
+
 // Hàm Bật/Tắt trạng thái ghi âm từ nút bấm hình tròn
 function toggleEvalRecording() {
+    if (!currentEvalTargetWord) {
+        alert("Vui lòng chọn một âm/từ trong danh sách trước khi ghi âm!");
+        return;
+    }
+    
     initEvalSpeech();
     if (!evalRecognition) return;
 
     if (!isEvalRecording) {
-        const currentGroup = filteredList[idx].group;
-        // Tự động cấu hình mã ngôn ngữ: Tiếng Trung cho con gái, tiếng Việt cho bạn người Trung
+        // Tự động tìm nhóm của từ hiện tại để cấu hình mã ngôn ngữ phù hợp
+        const foundItem = database.find(item => item.word === currentEvalTargetWord);
+        const currentGroup = foundItem ? foundItem.group : "chu_cai";
+        
         evalRecognition.lang = (currentGroup === "tieng_trung") ? 'zh-CN' : 'vi-VN';
 
         try {
@@ -66,7 +83,7 @@ function toggleEvalRecording() {
             
             // Tạm ẩn kết quả cũ khi bắt đầu lượt đọc mới
             document.getElementById("evalResultDetails").style.visibility = "hidden";
-            updateCircleProgress(0, "#ccc"); // Đưa vòng tròn về mặc định ban đầu
+            updateCircleProgress(0, "#ccc");
         } catch (e) {
             console.error(e);
         }
@@ -134,7 +151,6 @@ function updateCircleProgress(percent, color) {
     const circle = document.getElementById("svgProgressCircleBar");
     const text = document.getElementById("evalCirclePercentText");
     
-    // Chu vi vòng tròn bán kính r=54 là 2 * Math.PI * 54 ≈ 339.29
     const circumference = 339.292; 
     const offset = circumference - (percent / 100) * circumference;
     
@@ -144,12 +160,28 @@ function updateCircleProgress(percent, color) {
     text.style.fill = color;
 }
 
-// Quản lý đóng/mở cửa sổ Popup
+// Quản lý mở cửa sổ Popup và dựng danh sách chọn từ linh hoạt
 function openEvalPopup() {
-    if (filteredList.length === 0) { alert("Không có dữ liệu từ để thực hiện chấm điểm!"); return; }
+    if (filteredList.length === 0) { 
+        alert("Không có dữ liệu từ để thực hiện chấm điểm!"); 
+        return; 
+    }
+    
     document.getElementById("mainAppZone").style.display = "none";
     document.getElementById("evalPopupModal").style.display = "block";
     
+    // Tự động gán từ mẫu mặc định là từ hiện tại trên Card đang học
+    currentEvalTargetWord = filteredList[idx].word;
+    
+    // Đổ danh sách các từ đang được lọc vào ô Select để người dùng tiện chuyển đổi chọn từ nhanh
+    const selectElement = document.getElementById("evalWordSelector");
+    selectElement.innerHTML = ""; // Xóa dữ liệu cũ
+    
+    filteredList.forEach((item) => {
+        const isSelected = (item.word === currentEvalTargetWord) ? "selected" : "";
+        selectElement.innerHTML += `<option value="${item.word}" ${isSelected}>${item.word} (${item.mean})</option>`;
+    });
+
     // Reset giao diện vòng tròn về 0% ban đầu khi mở popup lên
     updateCircleProgress(0, "#ccc");
     document.getElementById("evalResultDetails").style.visibility = "hidden";
