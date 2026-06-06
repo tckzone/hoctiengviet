@@ -1,45 +1,68 @@
 /**
  * Hệ thống chấm điểm phát âm có danh sách chọn từ mục tiêu để so sánh
- * Phát triển cho dự án của anh Bùi Bích Nam
+ * Phiên bản tối ưu hóa độ nhạy nhận diện và tự động ngắt thông minh
+ * Phát triển cho dự án học ngôn ngữ của gia đình anh Bùi Bích Nam
  */
 
 let evalRecognition = null;
 let isEvalRecording = false;
 let currentEvalTargetWord = ""; // Lưu trữ từ mẫu đang được chọn để so sánh
+let evalTimeoutTimer = null;    // Bộ đếm thời gian tự động ngắt nếu máy không tự dừng
 
 // Hàm khởi tạo bộ máy nhận diện giọng nói AI
 function initEvalSpeech() {
     if (evalRecognition) return;
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition = window.webkitSpeechRecognition || window.SpeechRecognition;
     if (!SpeechRecognition) {
-        alert("Thiết bị hoặc Webview của bạn không hỗ trợ nhận diện giọng nói trực tiếp!");
+        alert("Thiết bị hoặc Ứng dụng của bạn không hỗ trợ nhận diện giọng nói trực tiếp!");
         return;
     }
 
     evalRecognition = new SpeechRecognition();
     evalRecognition.continuous = false;
-    evalRecognition.interimResults = false;
+    
+    // Đổi thành true để nhận diện chữ liên tục, tăng tối đa độ nhạy phản hồi
+    evalRecognition.interimResults = true; 
+
+    // Biến phụ để lưu trữ văn bản cuối cùng nhận được
+    let finalTranscript = "";
 
     evalRecognition.onresult = function(event) {
-        const studentText = event.results[0][0].transcript;
+        let interimTranscript = "";
         
-        // Tính toán phần trăm tương đồng dựa trên từ mẫu đang chọn trong danh sách công cụ
-        const score = calculateEvalSimilarity(currentEvalTargetWord, studentText);
+        for (let i = event.resultIndex; i < event.results.length; ++i) {
+            if (event.results[i].isFinal) {
+                finalTranscript += event.results[i][0].transcript;
+            } else {
+                interimTranscript += event.results[i][0].transcript;
+            }
+        }
+
+        // Lấy chuỗi văn bản rõ ràng nhất hiện tại để tiến hành chấm điểm
+        const textToEvaluate = finalTranscript || interimTranscript;
         
-        // Cập nhật vòng tròn điểm số trực quan
-        updateScoreCircle(score, studentText, currentEvalTargetWord);
+        if (textToEvaluate.trim().length > 0) {
+            // Tính toán phần trăm tương đồng và cập nhật vòng tròn điểm số ngay lập tức
+            const score = calculateEvalSimilarity(currentEvalTargetWord, textToEvaluate);
+            updateScoreCircle(score, textToEvaluate, currentEvalTargetWord);
+        }
     };
 
     evalRecognition.onerror = function(event) {
         console.error("Lỗi thu âm:", event.error);
+        clearTimeout(evalTimeoutTimer);
         stopEvalRecordingUI();
-        if(event.error === 'not-allowed') {
+        
+        if (event.error === 'not-allowed') {
             alert("Vui lòng cấp quyền sử dụng Micro trong cài đặt ứng dụng điện thoại!");
+        } else if (event.error === 'no-speech') {
+            alert("Không nghe thấy tiếng bạn đọc, vui lòng thử lại và nói to hơn nhé!");
         }
     };
 
     evalRecognition.onend = function() {
+        clearTimeout(evalTimeoutTimer);
         stopEvalRecordingUI();
     };
 }
@@ -69,25 +92,39 @@ function toggleEvalRecording() {
         const foundItem = database.find(item => item.word === currentEvalTargetWord);
         const currentGroup = foundItem ? foundItem.group : "chu_cai";
         
+        // Cấu hình ngôn ngữ: Tiếng Trung hoặc Tiếng Việt
         evalRecognition.lang = (currentGroup === "tieng_trung") ? 'zh-CN' : 'vi-VN';
 
         try {
             document.getElementById("internalAudioPlayer").pause();
+            
+            // Xóa bộ đếm cũ nếu có
+            clearTimeout(evalTimeoutTimer);
+            
             evalRecognition.start();
             isEvalRecording = true;
             
             // Đổi hiệu ứng nút ghi âm sang trạng thái đang thu
             const recordBtn = document.getElementById("btnEvalRecordTrigger");
             recordBtn.style.background = "#ff4d4f";
-            recordBtn.innerHTML = "🛑<br><span style='font-size:12px;'>Dừng...</span>";
+            recordBtn.innerHTML = "🛑<br><span style='font-size:12px;'>Đang thu...</span>";
             
             // Tạm ẩn kết quả cũ khi bắt đầu lượt đọc mới
             document.getElementById("evalResultDetails").style.visibility = "hidden";
             updateCircleProgress(0, "#ccc");
+
+            // TỰ ĐỘNG NGẮT SAU 4 GIÂY: Ép dừng để hiển thị điểm nếu người dùng quên không bấm dừng
+            evalTimeoutTimer = setTimeout(() => {
+                if (isEvalRecording) {
+                    evalRecognition.stop();
+                }
+            }, 4000);
+
         } catch (e) {
             console.error(e);
         }
     } else {
+        clearTimeout(evalTimeoutTimer);
         evalRecognition.stop();
     }
 }
@@ -101,7 +138,7 @@ function stopEvalRecordingUI() {
     }
 }
 
-// Thuật toán khoảng cách chuỗi để chấm điểm chính xác
+// Thuật toán khoảng cách chuỗi (Levenshtein) để chấm điểm chính xác
 function calculateEvalSimilarity(s1, s2) {
     let str1 = s1.toLowerCase().trim().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
     let str2 = s2.toLowerCase().trim().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,"");
@@ -128,11 +165,11 @@ function calculateEvalSimilarity(s1, s2) {
 
 // Cập nhật hoạt họa điền đầy vòng tròn và đổi màu theo điểm số
 function updateScoreCircle(score, studentText, targetText) {
-    let color = "#F44336"; // Đỏ mờ nếu điểm thấp
+    let color = "#F44336"; // Đỏ mờ nếu điểm thấp dưới 50%
     if (score >= 80) {
-        color = "#4CAF50"; // Xanh lá cây nếu phát âm chuẩn
+        color = "#4CAF50"; // Xanh lá cây nếu phát âm chuẩn trên 80%
     } else if (score >= 50) {
-        color = "#FF9800"; // Vàng cam nếu ở mức trung bình khá
+        color = "#FF9800"; // Vàng cam nếu ở mức trung bình khá (50% - 79%)
     }
 
     // Chạy hiệu ứng lấp đầy vòng tròn SVG
@@ -142,15 +179,19 @@ function updateScoreCircle(score, studentText, targetText) {
     const details = document.getElementById("evalResultDetails");
     const docText = document.getElementById("evalResultComparisonText");
     
-    details.style.visibility = "visible";
-    docText.innerHTML = `Mẫu chuẩn (标准): <b style="color:#5c4cf4">${targetText}</b><br>Bạn đọc (你读): <b style="color:${color}">${studentText}</b>`;
+    if (details && docText) {
+        details.style.visibility = "visible";
+        docText.innerHTML = `Mẫu chuẩn (标准): <b style="color:#5c4cf4">${targetText}</b><br>Bạn đọc (你读): <b style="color:${color}">${studentText}</b>`;
+    }
 }
 
 // Hàm tính toán thuộc tính stroke-dashoffset của hình tròn SVG
 function updateCircleProgress(percent, color) {
     const circle = document.getElementById("svgProgressCircleBar");
     const text = document.getElementById("evalCirclePercentText");
+    if (!circle || !text) return;
     
+    // Chu vi vòng tròn bán kính r=54 là 2 * Math.PI * 54 ≈ 339.292
     const circumference = 339.292; 
     const offset = circumference - (percent / 100) * circumference;
     
@@ -160,7 +201,7 @@ function updateCircleProgress(percent, color) {
     text.style.fill = color;
 }
 
-// Quản lý mở cửa sổ Popup và dựng danh sách chọn từ linh hoạt
+// Quản lý mở cửa sổ Popup và dựng danh sách chọn từ linh hoạt dựa vào bộ lọc hiện tại
 function openEvalPopup() {
     if (filteredList.length === 0) { 
         alert("Không có dữ liệu từ để thực hiện chấm điểm!"); 
@@ -173,23 +214,27 @@ function openEvalPopup() {
     // Tự động gán từ mẫu mặc định là từ hiện tại trên Card đang học
     currentEvalTargetWord = filteredList[idx].word;
     
-    // Đổ danh sách các từ đang được lọc vào ô Select để người dùng tiện chuyển đổi chọn từ nhanh
+    // Đổ danh sách các từ đang được lọc vào ô Select để tiện chuyển đổi nhanh trong Popup
     const selectElement = document.getElementById("evalWordSelector");
-    selectElement.innerHTML = ""; // Xóa dữ liệu cũ
-    
-    filteredList.forEach((item) => {
-        const isSelected = (item.word === currentEvalTargetWord) ? "selected" : "";
-        selectElement.innerHTML += `<option value="${item.word}" ${isSelected}>${item.word} (${item.mean})</option>`;
-    });
+    if (selectElement) {
+        selectElement.innerHTML = ""; // Xóa dữ liệu cũ
+        filteredList.forEach((item) => {
+            const isSelected = (item.word === currentEvalTargetWord) ? "selected" : "";
+            selectElement.innerHTML += `<option value="${item.word}" ${isSelected}>${item.word} (${item.mean})</option>`;
+        });
+    }
 
-    // Reset giao diện vòng tròn về 0% ban đầu khi mở popup lên
+    // Reset giao diện vòng tròn về 0% ban đầu khi mở popup
     updateCircleProgress(0, "#ccc");
     document.getElementById("evalResultDetails").style.visibility = "hidden";
 }
 
 function closeEvalPopup() {
+    clearTimeout(evalTimeoutTimer);
     stopEvalRecordingUI();
-    if(evalRecognition) { try { evalRecognition.stop(); } catch(e){} }
+    if (evalRecognition) { 
+        try { evalRecognition.stop(); } catch(e){} 
+    }
     document.getElementById("evalPopupModal").style.display = "none";
     document.getElementById("mainAppZone").style.display = "block";
 }
