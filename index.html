@@ -251,41 +251,60 @@
     }
 
     // XỬ LÝ ĐĂNG NHẬP / ĐĂNG KÝ
-    async function handleAuth() {
-        const user = document.getElementById("authUsername").value.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
-        const pass = document.getElementById("authPassword").value.trim();
-        if(!user || !pass) { alert("Vui lòng nhập đủ thông tin!"); return; }
-        showLoading(true);
-        const url = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${FOLDER_NAME}/${user}.json`;
-        try {
-            let response = await fetch(url, { headers: { "Authorization": `token ${GH_TOKEN}` } });
-            if (isRegisterMode) {
-                if (response.status === 200) { alert("Tài khoản đã tồn tại!"); showLoading(false); return; }
-                const initData = { password: pass, createdAt: new Date().toLocaleString(), testHistory: [], logs: [] };
-                let createRes = await fetch(url, {
-                    method: "PUT",
-                    headers: { "Authorization": `token ${GH_TOKEN}`, "Content-Type": "application/json" },
-                    body: JSON.stringify({ message: `Reg: ${user}`, content: btoa(unescape(encodeURIComponent(JSON.stringify(initData, null, 2)))) })
-                });
-                if(createRes.ok) { alert("🎉 Đăng ký thành công! Hãy Đăng nhập."); toggleAuthMode(); }
-            } else {
-                if (response.status !== 200) { alert("Tài khoản không tồn tại!"); showLoading(false); return; }
-                let resData = await response.json(); userFileSha = resData.sha;
-                let contentDecoded = decodeURIComponent(escape(atob(resData.content)));
-                userDataObj = JSON.parse(contentDecoded);
-                if(!userDataObj.testHistory) userDataObj.testHistory = []; // Đảm bảo luôn có mảng lịch sử điểm
+    // XỬ LÝ ĐĂNG NHẬP / ĐĂNG KÝ (ĐÃ TỐI ƯU KHÔNG BỊ TRỄ)
+async function handleAuth() {
+    const user = document.getElementById("authUsername").value.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+    const pass = document.getElementById("authPassword").value.trim();
+    if(!user || !pass) { alert("Vui lòng nhập đủ thông tin!"); return; }
+    showLoading(true);
+    const url = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${FOLDER_NAME}/${user}.json`;
+    try {
+        let response = await fetch(url, { headers: { "Authorization": `token ${GH_TOKEN}` } });
+        if (isRegisterMode) {
+            if (response.status === 200) { alert("Tài khoản đã tồn tại!"); showLoading(false); return; }
+            
+            // Dữ liệu khởi tạo cho học viên mới
+            const initData = { password: pass, createdAt: new Date().toLocaleString(), testHistory: [], logs: [] };
+            let createRes = await fetch(url, {
+                method: "PUT",
+                headers: { "Authorization": `token ${GH_TOKEN}`, "Content-Type": "application/json" },
+                body: JSON.stringify({ message: `Reg: ${user}`, content: btoa(unescape(encodeURIComponent(JSON.stringify(initData, null, 2)))) })
+            });
+            
+            if(createRes.ok) {
+                let resJSON = await createRes.json();
+                // LẤY NGAY MÃ SHA MỚI TẠO ĐỂ ĐĂNG NHẬP THẲNG
+                userFileSha = resJSON.content.sha; 
+                userDataObj = initData;
+                currentSessionUser = user;
                 
-                if (userDataObj.password === pass) {
-                    currentSessionUser = user;
-                    localStorage.setItem("gh_saved_user", user);
-                    localStorage.setItem("gh_saved_sha", userFileSha);
-                    localStorage.setItem("gh_saved_data", contentDecoded);
-                    enterApp(user);
-                } else { alert("Sai mật khẩu!"); }
+                // Lưu nhanh vào bộ nhớ máy để học viên vào học luôn, không bị ảnh hưởng bởi độ trễ GitHub
+                localStorage.setItem("gh_saved_user", user);
+                localStorage.setItem("gh_saved_sha", userFileSha);
+                localStorage.setItem("gh_saved_data", JSON.stringify(initData));
+                
+                alert("🎉 Đăng ký thành công! Hệ thống tự động đăng nhập cho bạn.");
+                enterApp(user); // Vào thẳng ứng dụng, không bắt đăng nhập lại nữa
             }
-        } catch (err) { alert("Lỗi kết nối API!"); }
-        showLoading(false);
-    }
+        } else {
+            // Logic đăng nhập bình thường cho các ngày hôm sau
+            if (response.status !== 200) { alert("Tài khoản không tồn tại hoặc hệ thống đang đồng bộ, vui lòng thử lại sau 1 phút!"); showLoading(false); return; }
+            let resData = await response.json(); userFileSha = resData.sha;
+            let contentDecoded = decodeURIComponent(escape(atob(resData.content)));
+            userDataObj = JSON.parse(contentDecoded);
+            if(!userDataObj.testHistory) userDataObj.testHistory = [];
+            
+            if (userDataObj.password === pass) {
+                currentSessionUser = user;
+                localStorage.setItem("gh_saved_user", user);
+                localStorage.setItem("gh_saved_sha", userFileSha);
+                localStorage.setItem("gh_saved_data", contentDecoded);
+                enterApp(user);
+            } else { alert("Sai mật khẩu!"); }
+        }
+    } catch (err) { alert("Lỗi kết nối API!"); }
+    showLoading(false);
+}
 
     function enterApp(username) {
         document.getElementById("authZone").style.display = "none";
