@@ -3,90 +3,358 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hệ Thống Kiểm Tra & Luyện Học Ngẫu Nhiên</title>
+    <title>越南语多维深度动态记忆卡</title>
     <style>
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        :root { --primary-color: #5c4cf4; --accent-color: #FF9800; --success-color: #4CAF50; --error-color: #f44336; --bg-color: #f5f7fa; --card-bg: #ffffff; --text-color: #333333; }
-        body { font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif; background-color: var(--bg-color); color: var(--text-color); margin: 0; padding: 10px; text-align: center; }
-        .container { display: block; width: 100%; max-width: 480px; margin: 0 auto; text-align: left; position: relative; }
-        
-        /* ĐIỂM SỐ GÓC TRÊN PHẢI */
-        .score-board { position: fixed; top: 10px; right: 10px; background: rgba(255, 152, 0, 0.95); color: white; padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.15); z-index: 999; display: none; }
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
 
-        /* GIAO DIỆN ĐĂNG NHẬP */
-        .auth-container { display: block; background: var(--card-bg); border-radius: 16px; padding: 25px; margin-top: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
-        .auth-title { font-size: 20px; font-weight: bold; margin-bottom: 20px; color: var(--primary-color); }
-        .auth-input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 15px; outline: none; text-align: center; }
-        .btn-auth { background: var(--primary-color); color: white; border: none; padding: 12px; width: 100%; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; margin-bottom: 10px; }
-        .auth-toggle { font-size: 13px; color: #666; cursor: pointer; text-decoration: underline; }
-        .loading-text { font-size: 14px; color: var(--accent-color); margin-top: 5px; display: none; font-weight: bold; }
+        :root {
+            --primary-color: #5c4cf4;
+            --accent-color: #FF9800;
+            --bg-color: #f5f7fa;
+            --card-bg: #ffffff;
+            --text-color: #333333;
+        }
 
-        /* VÙNG CHỨNG NĂNG CHÍNH */
-        #mainAppZone { display: none; }
-        .user-welcome-bar { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: bold; color: #555; margin-bottom: 12px; background: #eef0fc; padding: 8px 12px; border-radius: 8px; }
-        .btn-logout { background: none; border: none; color: #ff4d4f; font-size: 12px; cursor: pointer; width: auto; padding: 0; margin: 0; }
-        
-        /* PHẦN BÀI KIỂM TRA BẮT BUỘC */
-        #panelQuiz { display: block; }
-        .quiz-item-row { display: flex; align-items: center; background: var(--card-bg); padding: 12px; margin-bottom: 10px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); border: 2px solid transparent; transition: all 0.3s; }
-        .quiz-index-num { width: 30px; font-weight: bold; color: #888; font-size: 14px; }
-        .btn-quiz-play { background: #eef0fc; color: #5c4cf4; border: none; padding: 10px 14px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; margin-right: 12px; }
-        .input-quiz-answer { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; outline: none; text-align: center; font-weight: bold; }
-        .row-correct { border-color: var(--success-color); background: #ebf7ed; }
-        .row-correct .input-quiz-answer { border-color: var(--success-color); color: var(--success-color); }
-        .row-error { border-color: var(--error-color); background: #fdf2f2; }
-        .row-error .input-quiz-answer { border-color: var(--error-color); color: var(--error-color); }
-        .btn-submit-quiz { background: #4CAF50; color: white; border: none; padding: 15px; width: 100%; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; box-shadow: 0 4px 10px rgba(76,175,80,0.2); }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 10px;
+            text-align: center;
+        }
 
-        /* PHẦN LUYỆN HỌC THẺ TỪ */
-        #panelStudy { display: none; } 
-        .config-section { display: block; background: var(--card-bg); border-radius: 12px; padding: 12px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .section-title { font-size: 14px; font-weight: bold; margin-bottom: 8px; color: #555; }
-        .tag-container { display: block; border: 1px solid #ddd; padding: 6px; border-radius: 8px; background: #fff; margin-bottom: 10px; min-height: 44px; text-align: left; }
-        .tag-item { display: inline-block; background: #ff4d4f; color: white; padding: 4px 8px; border-radius: 6px; font-size: 13px; font-weight: bold; margin: 3px; cursor: pointer; }
-        select { display: block; width: 100%; padding: 12px; border-radius: 8px; font-size: 15px; font-weight: bold; border: none; cursor: pointer; margin-bottom: 8px; background-color: #fff; border: 1px solid #ddd; height: 45px; }
-        .btn-shuffle { background-color: #f5f5f5; color: #333; border: 1px solid #ddd; margin-bottom: 8px; width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 15px; cursor: pointer; }
-        
-        /* HIỂN THỊ KẾT QUẢ KIỂM TRA TRÊN THẺ HỌC */
-        .quiz-status-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-bottom: 8px; }
-        .badge-none { background: #e0e0e0; color: #666; }
-        .badge-correct { background: var(--success-color); color: white; }
-        .badge-error { background: var(--error-color); color: white; }
+        .container { 
+            display: block;
+            width: 100%; 
+            max-width: 480px; 
+            margin: 0 auto;
+            text-align: left;
+        }
 
-        .card-section { display: block; background: var(--card-bg); border-radius: 16px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); position: relative; }
+        .config-section {
+            display: block;
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .tag-container {
+            display: block;
+            border: 1px solid #ddd;
+            padding: 6px;
+            border-radius: 8px;
+            background: #fff;
+            margin-bottom: 10px;
+            min-height: 44px;
+            text-align: left;
+        }
+
+        .tag-item {
+            display: inline-block;
+            background: #ff4d4f;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            margin: 3px;
+            cursor: pointer;
+        }
+
+        select, button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+
+        select { background-color: #fff; border: 1px solid #ddd; height: 45px; }
+        .btn-shuffle { background-color: #f5f5f5; color: #333; border: 1px solid #ddd; }
+
+        .card-section {
+            display: block;
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            position: relative;
+        }
+
         .progress-text { font-size: 13px; color: #888; text-align: right; margin-bottom: 8px; }
-        .flashcard-wrapper { perspective: 1000px; display: block; width: 100%; height: 160px; margin-bottom: 12px; }
-        .flashcard-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.4s ease-in-out; transform-style: preserve-3d; cursor: pointer; }
-        .flashcard-inner.is-flipped { transform: rotateY(180deg); }
-        .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 16px; padding: 15px; }
-        .card-cell-helper { display: table; width: 100%; height: 100%; }
-        .card-content-box { display: table-cell; vertical-align: middle; text-align: center; }
-        .card-front { background: linear-gradient(135deg, #614cf4, #914cf4); color: white; }
-        .card-back { background: #ffffff; color: #333333; border: 2px solid #614cf4; transform: rotateY(180deg); }
+
+        .flashcard-wrapper {
+            perspective: 1000px;
+            display: block;
+            width: 100%;
+            height: 160px;
+            margin-bottom: 12px;
+        }
+
+        .flashcard-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.4s ease-in-out;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .flashcard-inner.is-flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+            border-radius: 16px;
+            padding: 15px;
+        }
+
+        .card-cell-helper {
+            display: table;
+            width: 100%;
+            height: 100%;
+        }
+        .card-content-box {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #614cf4, #914cf4);
+            color: white;
+        }
+
+        .card-back {
+            background: #ffffff;
+            color: #333333;
+            border: 2px solid #614cf4;
+            transform: rotateY(180deg);
+        }
+
         .revealed-word { font-size: 38px; font-weight: bold; color: #5c4cf4; margin: 0; line-height: 1.2; }
-        
-        /* POPUP SO SÁNH */
-        .top-action-bar { position: absolute; top: 12px; left: 15px; display: flex; gap: 6px; z-index: 10; }
-        .btn-open-compare { width: auto !important; padding: 6px 14px !important; margin-bottom: 0 !important; background: var(--accent-color) !important; color: white !important; font-size: 13px !important; border-radius: 20px !important; border:none; cursor:pointer; font-weight:bold;}
-        .compare-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f5f7fa; z-index: 9999; padding: 15px; box-sizing: border-box; overflow-y: auto; }
-        .compare-modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #5c4cf4; padding-bottom: 10px; margin-bottom: 12px; }
+
+        /* KHU VỰC CHỨA KHỐI NÚT CHỨC NĂNG PHÍA TRÊN CARD TRONG 1000022535.JPG */
+        .top-action-bar {
+            position: absolute;
+            top: 12px;
+            left: 15px;
+            display: flex;
+            gap: 6px;
+            z-index: 10;
+        }
+
+        .btn-open-compare {
+            width: auto !important;
+            padding: 6px 14px !important;
+            margin-bottom: 0 !important;
+            background: var(--accent-color) !important;
+            color: white !important;
+            font-size: 13px !important;
+            border-radius: 20px !important;
+        }
+
+        /* NÚT CHẤM ĐIỂM THÊM MỚI BÊN CẠNH NÚT SO SÁNH */
+        .btn-open-eval {
+            width: auto !important;
+            padding: 6px 14px !important;
+            margin-bottom: 0 !important;
+            background: #4CAF50 !important;
+            color: white !important;
+            font-size: 13px !important;
+            border-radius: 20px !important;
+        }
+
+        .compare-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f5f7fa;
+            z-index: 9999;
+            padding: 15px;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .compare-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #5c4cf4;
+            padding-bottom: 10px;
+            margin-bottom: 12px;
+        }
         .compare-modal-header h3 { margin: 0; font-size: 16px; color: #5c4cf4; }
-        .btn-close-modal { width: auto !important; margin-bottom: 0 !important; padding: 6px 12px !important; background: #666 !important; color: white !important; font-size: 13px !important; border:none; border-radius:6px;}
-        .compare-checkbox-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; max-height: 55vh; overflow-y: auto; background: #ffffff; border: 1px solid #ddd; border-radius: 10px; padding: 10px; margin-bottom: 12px; }
-        .compare-label-box { display: flex; align-items: center; justify-content: center; background: #f9f9f9; border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 2px; font-size: 13px; font-weight: bold; cursor: pointer; }
+        .btn-close-modal { width: auto !important; margin-bottom: 0 !important; padding: 6px 12px !important; background: #666 !important; color: white !important; font-size: 13px !important; }
+
+        .compare-checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            max-height: 55vh;
+            overflow-y: auto;
+            background: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 12px;
+        }
+
+        .compare-label-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 10px 2px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+        }
         .compare-label-box input { margin-right: 4px; }
-        .compare-output-box { background: #fff; padding: 10px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 12px; text-align: left; }
-        .compare-output-box input { width: 100% !important; border: none !important; background: transparent !important; padding: 0 !important; font-size: 16px !important; color: #5c4cf4 !important; font-weight: bold !important; text-align: left !important; }
-        .btn-ctrl { flex: 1; margin-bottom: 0 !important; padding: 14px 10px !important; font-size: 14px !important; color: white !important; border:none; border-radius:8px; font-weight:bold; cursor:pointer;}
-        .action-table, .nav-table { display: table; width: 100%; margin-bottom: 12px; border-collapse: separate; border-spacing: 8px 0; }
+
+        .compare-output-box {
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        .compare-output-box input {
+            width: 100% !important; border: none !important; background: transparent !important;
+            padding: 0 !important; font-size: 16px !important; color: #5c4cf4 !important; font-weight: bold !important; text-align: left !important;
+        }
+
+        .compare-control-panel { display: flex; gap: 8px; }
+        .btn-ctrl { flex: 1; margin-bottom: 0 !important; padding: 14px 10px !important; font-size: 14px !important; color: white !important; }
+
+        .action-table, .nav-table {
+            display: table;
+            width: 100%;
+            margin-bottom: 12px;
+            border-collapse: separate;
+            border-spacing: 8px 0;
+        }
         .action-cell, .nav-cell { display: table-cell; width: 50%; }
-        .action-cell button { margin-bottom: 0; background: #fff; border: 1px solid #ddd; color: #333; font-size: 14px; width:100%; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;}
-        input[type="text"].dict-input { display: block; width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 16px; text-align: center; }
+        .action-cell button { margin-bottom: 0; background: #fff; border: 1px solid #ddd; color: #333; font-size: 14px; }
+        
+        input[type="text"] {
+            display: block; width: 100%; padding: 12px; border-radius: 8px;
+            border: 1px solid #ccc; font-size: 16px; text-align: center;
+        }
+
         .result-message { font-size: 14px; font-weight: bold; margin-top: 6px; min-height: 18px; text-align: center; }
-        .result-success { color: var(--success-color); }
-        .result-error { color: var(--error-color); }
-        .btn-prev { background: #f5f5f5 !important; color: #888 !important; border: 1px solid #e8e8e8 !important; width:100%; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;}
-        .btn-next { background: #5c4cf4 !important; color: white !important; width:100%; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;}
+        .result-success { color: #4CAF50; }
+        .result-error { color: #F44336; }
+
+        .btn-prev { background: #f5f5f5 !important; color: #888 !important; border: 1px solid #e8e8e8 !important; }
+        .btn-next { background: #5c4cf4 !important; color: white !important; }
+
+        /* --- STYLE TOÀN BỘ POPUP CHẤM ĐIỂM VÀ VÒNG TRÒN % --- */
+        .eval-popup-content {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* Thiết kế vùng chứa SVG Vòng tròn điểm số */
+        .circle-score-wrapper {
+            position: relative;
+            width: 130px;
+            height: 130px;
+            margin: 20px auto;
+        }
+        .circle-score-wrapper svg {
+            transform: rotate(-90deg); /* Xoay SVG để tiến trình chạy từ đỉnh trên cùng xuống */
+            width: 130px;
+            height: 130px;
+        }
+        .circle-bg {
+            fill: none;
+            stroke: #f1f1f1;
+            stroke-width: 10;
+        }
+        .circle-progress-bar {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 10;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.4s ease, stroke 0.4s ease;
+        }
+        .circle-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 26px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        /* Nút nhấn ghi âm hình tròn màu xanh lá cây */
+        .btn-round-record {
+            width: 86px !important;
+            height: 86px !important;
+            border-radius: 50% !important;
+            background: #4CAF50;
+            color: white !important;
+            font-size: 26px !important;
+            font-weight: bold !important;
+            box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            margin: 25px auto 10px auto !important;
+            transition: background 0.2s ease, transform 0.1s ease;
+        }
+        .btn-round-record:active {
+            transform: scale(0.95);
+        }
+
+        .eval-detail-box {
+            background: #f9f9f9;
+            border: 1px dashed #ddd;
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 15px;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body>
@@ -95,43 +363,15 @@
 <audio id="compareAudioPlayer"></audio>
 
 <div class="container">
-    
-    <div id="scoreBoard" class="score-board">
-        📋 今日测试: <span id="lblSavedScore" style="color:#ffeb3b;">0/0</span>
-    </div>
-
-    <div id="authZone" class="auth-container">
-        <div class="auth-title" id="authFormTitle">🔐 登录学习与测试系统</div>
-        <input type="text" id="authUsername" class="auth-input" placeholder="请输入您的名字 (拼音或连写无空格)..." autocomplete="off">
-        <input type="password" id="authPassword" class="auth-input" placeholder="请输入密码 ...">
-        <button class="btn-auth" id="btnAuthSubmit" onclick="handleAuth()">立即登录 (Đăng nhập)</button>
-        <div class="auth-toggle" id="authToggleLink" onclick="toggleAuthMode()">没有账号？立即注册</div>
-        <div class="loading-text" id="authLoading">⏳同步数据...</div>
-    </div>
-
     <div id="mainAppZone">
-        <div class="user-welcome-bar">
-            <span>👤 学员 (Học viên): <span id="lblCurrentUser" style="color:#5c4cf4;">---</span></span>
-            <button class="btn-logout" onclick="logout()">[退出 Đăng xuất]</button>
-        </div>
-
-        <div id="panelQuiz">
-            <div class="config-section" style="margin-bottom: 12px; border-left: 4px solid var(--accent-color);">
-                <div class="section-title" style="color:var(--accent-color); font-size:16px;">✍️ 听力能力测试 (每日必考测试)</div>
-                <div style="font-size:12px; color:#666; margin-top:4px;">💡 请听录音并输入正确的拼写以解锁单词学习模块.</div>
-            </div>
+        <div class="config-section">
+            <div class="section-title">📁 越南语发音核心字母组 (点击切换过滤)</div>
+            <div class="tag-container" id="tagBox"></div>
             
-            <div id="quizContainer"></div>
-            <button class="btn-submit-quiz" onclick="gradeQuiz()">提交测试解锁学习 (提交并查看结果)</button>
-        </div>
-
-        <div id="panelStudy">
-            <div class="config-section" style="border-left: 4px solid var(--success-color);">
-                <div class="section-title" style="color:var(--success-color); font-size:16px;">🎉 学习中心 (已解锁练习模块)</div>
-                <div class="tag-container" id="tagBox" style="margin-top:8px;"></div>
-                <div class="round-select-box">
-                    <select id="groupAdder" onchange="addGroupFilter(this.value)">
-                        <option value="all">显示全部 (172个字母与韵母)</option>
+            <div class="round-select-box">
+                <select id="groupAdder" onchange="addGroupFilter(this.value)">
+                    <option value="">+ 添加/查看字母组合过滤...</option>
+                    <option value="all">显示全部 (172个字母与韵母)</option>
                     <option value="chu_cai">Bảng chữ cái tiếng Việt (a, b, c...)</option>
                     <option value="phu_am">Phụ âm ghép đầu (ch, kh, th...)</option>
                     <option value="a">A 核心韵母组 (a, ia, ua, ao, ai...)</option>
@@ -145,348 +385,127 @@
                     <option value="i_y">I / Y 核心韵母组 (i, y, iu, it, in, iêu...)</option>
                     <option value="u">U 核心韵母组 (u, ua, ui, uc, ut, un...)</option>
                     <option value="ư">Ư 核心韵母组 (ư, ưa, ưu, ưi, ưc, ươc...)</option>
-                    </select>
-                </div>
-                <button class="btn-shuffle" onclick="shuffleCards()">🔀 打乱顺序 / 刷新词组</button>
+                </select>
+            </div>
+            
+            <button class="btn-shuffle" onclick="shuffleCards()">🔀 打乱顺序 / 刷新词组</button>
+        </div>
+
+        <div class="card-section">
+            <!-- ĐƯỢC CHỈNH SỬA THÀNH KHỐI CHỨA 2 NÚT NẰM CẠNH NHAU TRÊN THẺ CARD THEO ẢNH 1000022535.JPG -->
+            <div class="top-action-bar">
+                <button class="btn-open-compare" onclick="openCompareWindow()">▶ 发音对比</button>
+                <button class="btn-open-eval" onclick="openEvalPopup()">🎙️ 发音评测</button>
             </div>
 
-            <div class="card-section">
-                <div style="text-align: center;">
-                    <span id="quizStatusBadge" class="quiz-status-badge badge-none">Chưa kiểm tra từ này</span>
-                </div>
-
-                <div class="top-action-bar">
-                    <button class="btn-open-compare" onclick="openCompareWindow()">▶ 发音对比</button>
-                </div>
-                <div class="progress-text">当前进度: <span id="currentProgress">0</span>/<span id="totalProgress">0</span></div>
-                
-                <div class="flashcard-wrapper">
-                    <div class="flashcard-inner" id="cardInner" onclick="flipCard()">
-                        <div class="card-face card-front">
-                            <div class="card-cell-helper">
-                                <div class="card-content-box">
-                                    <div style="font-size:18px; font-weight:bold;">🎵 请听发音辨词</div>
-                                    <div style="font-size:22px; font-weight:bold; margin-top:10px; color:rgba(255,255,255,0.7);">❓ 点击翻转</div>
-                                </div>
+            <div class="progress-text">当前进度: <span id="currentProgress">0</span>/<span id="totalProgress">0</span></div>
+            
+            <div class="flashcard-wrapper">
+                <div class="flashcard-inner" id="cardInner" onclick="flipCard()">
+                    <div class="card-face card-front">
+                        <div class="card-cell-helper">
+                            <div class="card-content-box">
+                                <div style="font-size:18px; font-weight:bold;">🎵 听音辨词: 请听发音 write </div>
+                                <div style="font-size:12px; opacity:0.85;">点击卡片或下按钮可翻转查看答案</div>
+                                <div style="font-size:22px; font-weight:bold; margin-top:10px; color:rgba(255,255,255,0.7);">❓ 点击翻转</div>
                             </div>
                         </div>
-                        <div class="card-face card-back">
-                            <div class="card-cell-helper">
-                                <div class="card-content-box">
-                                    <div class="revealed-word" id="wordRevealTarget">---</div>
-                                    <div style="font-size:15px; color:#666; margin-top:6px; font-weight:500;" id="meanRevealTarget">---</div>
-                                </div>
+                    </div>
+                    <div class="card-face card-back">
+                        <div class="card-cell-helper">
+                            <div class="card-content-box">
+                                <div class="revealed-word" id="wordRevealTarget">---</div>
+                                <div style="font-size:15px; color:#666; margin-top:6px; font-weight:500;" id="meanRevealTarget">---</div>
                             </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="action-table">
-                    <div class="action-cell"><button onclick="flipCard()">🔄 翻转卡片</button></div>
-                    <div class="action-cell"><button onclick="playSoundDirectly()">🔊 点击发音</button></div>
-                </div>
+            <div class="action-table">
+                <div class="action-cell"><button onclick="flipCard()">🔄 翻转卡片</button></div>
+                <div class="action-cell"><button onclick="playSoundDirectly()">🔊 点击发音</button></div>
+            </div>
 
-                <div style="font-size:13px; font-weight:bold; margin-bottom:6px;">请输入听到的越南语单词 (按 Enter 核对):</div>
-                <input type="text" id="dictationField" class="dict-input" placeholder="在此键入拼写后按 Enter 核對..." autocomplete="off">
-                <div class="result-message" id="alertBox"></div>
+            <div style="font-size:13px; font-weight:bold; margin-bottom:6px;">请输入听到的越南语单词 (按 Enter 提交核对):</div>
+            <input type="text" id="dictationField" placeholder="在此键入拼写后按 Enter 提交核对..." autocomplete="off">
+            <div class="result-message" id="alertBox"></div>
 
-                <div class="nav-table" style="margin-top:15px;">
-                    <div class="nav-cell"><button class="btn-prev" onclick="movePointer(-1)">⬅️ 上一個</button></div>
-                    <div class="nav-cell"><button class="btn-next" onclick="movePointer(1)">👉 下一個</button></div>
-                </div>
+            <div class="nav-table" style="margin-top:15px;">
+                <div class="nav-cell"><button class="btn-prev" onclick="movePointer(-1)">⬅️ 上一个</button></div>
+                <div class="nav-cell"><button class="btn-next" onclick="movePointer(1)">👉 下一個</button></div>
             </div>
         </div>
     </div>
 
+    <!-- POPUP HỘP THOẠI CHẤM ĐIỂM PHÁT ÂM VÒNG TRÒN ĐỔI MÀU (THÊM MỚI) -->
+    <!-- POPUP HỘP THOẠI CHẤM ĐIỂM PHÁT ÂM VÒNG TRÒN ĐỔI MÀU (Cập nhật có danh sách chọn âm mục tiêu) -->
+    <div id="evalPopupModal" class="compare-modal">
+        <div class="compare-modal-header">
+            <h3>🎙️ AI 发音评测 Chấm điểm phát âm</h3>
+            <button class="btn-close-modal" onclick="closeEvalPopup()">✕ 返回学习</button>
+        </div>
+
+        <div class="eval-popup-content">
+            <!-- DANH SÁCH CHỌN ÂM MUỐN SO SÁNH (MỚI BỔ SUNG) -->
+            <div style="text-align: left; margin-bottom: 15px;">
+                <label for="evalWordSelector" style="display:block; font-size:13px; font-weight:bold; color:#5c4cf4; margin-bottom:5px;">
+                    🎯 选择要评测的音频 (Chọn âm muốn chấm điểm):
+                </label>
+                <select id="evalWordSelector" onchange="handleEvalWordSelectChange(this.value)" style="border: 2px solid #5c4cf4; background-color: #fcfbff;">
+                    <!-- Dữ liệu tùy chọn sẽ được hàm openEvalPopup() tự động đổ vào đây -->
+                </select>
+            </div>
+
+            <div style="font-size:14px; color:#444; font-weight:bold; margin-top: 20px;">ĐỘ CHÍNH XÁC PHÁT ÂM (发音准确率)</div>
+            
+            <!-- Thành phần Vòng tròn tiến trình SVG lấp đầy điểm số -->
+            <div class="circle-score-wrapper">
+                <svg>
+                    <circle class="circle-bg" cx="65" cy="65" r="54"></circle>
+                    <circle class="circle-progress-bar" id="svgProgressCircleBar" cx="65" cy="65" r="54" 
+                            stroke-dasharray="339.292" stroke-dashoffset="339.292"></circle>
+                </svg>
+                <div class="circle-text" id="evalCirclePercentText">0%</div>
+            </div>
+
+            <!-- Nút nhấn ghi âm tròn lớn màu xanh lá cây -->
+            <button class="btn-round-record" id="btnEvalRecordTrigger" onclick="toggleEvalRecording()">
+                🎙️<br><span style="font-size:12px;">Nhấn đọc</span>
+            </button>
+            <div style="font-size:12px; color:#999; margin-top:5px;">Bấm nút trên, đợi đổi màu rồi đọc thật to rõ ràng nhé!</div>
+
+            <!-- Vùng bảng hiển thị so sánh chi tiết text khi có kết quả -->
+            <div class="eval-detail-box" id="evalResultDetails" style="visibility: hidden;">
+                <div id="evalResultComparisonText">---</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- POPUP SO SÁNH PHÁT ÂM CŨ -->
     <div id="compareWindowModal" class="compare-modal">
         <div class="compare-modal-header">
-            <h3>📊 发音对比工具</h3>
+            <h3>📊 发音对比工具 (So sánh phát âm)</h3>
             <button class="btn-close-modal" onclick="closeCompareWindow()">✕ 返回学习</button>
         </div>
+        <div style="font-size:13px; color:#555; margin-bottom:12px; text-align:left;">💡 请勾选 2 个或以上的单词进行连读对比:</div>
         <div class="compare-checkbox-grid" id="compareCheckboxContainer"></div>
         <div class="compare-output-box">
+            <span style="display:block; font-size:12px; color:#888; margin-bottom:4px; font-weight:bold;">播放队列 (Hàng đợi phát):</span>
             <input type="text" id="compareWordsInput" readonly placeholder="未勾选单词...">
         </div>
         <div class="compare-control-panel">
-            <button class="btn-ctrl" style="background:#888;" onclick="clearCompareSelection()">🧹 清空</button>
-            <button class="btn-ctrl" style="background:#ff4d4f;" onclick="stopComparePlayback()">⏹ 停止</button>
-            <button class="btn-ctrl" style="background:#4CAF50;" onclick="startComparePlayback()">🔊 对比</button>
+            <button class="btn-ctrl" style="background:#888;" onclick="clearCompareSelection()">🧹 清空已选</button>
+            <button class="btn-ctrl" style="background:#ff4d4f;" onclick="stopComparePlayback()">⏹ 停止播放</button>
+            <button class="btn-ctrl" style="background:#4CAF50;" onclick="startComparePlayback()">🔊 开始听音对比</button>
         </div>
     </div>
 </div>
 
 <script>
-    // -------------------------------------------------------------------------
-    // ANH CẤU HÌNH SỐ LƯỢNG TỪ KIỂM TRA NGẪU NHIÊN TẠI ĐÂY
-    // -------------------------------------------------------------------------
-    const NUMBER_OF_QUIZ_WORDS = 10; // Anh muốn kiểm tra bao nhiêu từ thì đổi số này (Ví dụ: 10, 15, 20...)
-
-    const GH_USER = "tckzone";                   
-    const GH_REPO = "hoctiengviet";               
-    const GH_TOKEN = "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";  // Token GitHub ghi file của anh
-    const FOLDER_NAME = "hocvien";               
-
-    let currentSessionUser = null;
-    let userDataObj = { password: "", testHistory: [], logs: [] }; 
-    let userFileSha = null;                      
-    let isRegisterMode = false;
-
-    // Kho lưu kết quả đúng/sai tạm thời của bài kiểm tra hiện tại để hiện lên thẻ học
-    let currentQuizResultsMap = {}; 
-    let quizQuestions = []; // Mảng chứa các câu hỏi ngẫu nhiên sinh ra từ kho dữ liệu
-
-    function showLoading(show) { document.getElementById("authLoading").style.display = show ? "block" : "none"; }
-    function toggleAuthMode() {
-        isRegisterMode = !isRegisterMode;
-        const title = document.getElementById("authFormTitle");
-        const submitBtn = document.getElementById("btnAuthSubmit");
-        const toggleLink = document.getElementById("authToggleLink");
-        if(isRegisterMode) {
-            title.innerText = "📝 注册新账号 (Đăng ký)"; submitBtn.innerText = "立即注册 (Đăng ký)";
-            toggleLink.innerText = "Đã có tài khoản? Đăng nhập";
-        } else {
-            title.innerText = "🔐 登录学习与测试系统"; submitBtn.innerText = "立即登录 (Đăng nhập)";
-            toggleLink.innerText = "Không có tài khoản? Đăng ký ngay";
-        }
-    }
-
-    // XỬ LÝ ĐĂNG NHẬP / ĐĂNG KÝ
-    // XỬ LÝ ĐĂNG NHẬP / ĐĂNG KÝ (ĐÃ TỐI ƯU KHÔNG BỊ TRỄ)
-async function handleAuth() {
-    const user = document.getElementById("authUsername").value.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
-    const pass = document.getElementById("authPassword").value.trim();
-    if(!user || !pass) { alert("Vui lòng nhập đủ thông tin!"); return; }
-    showLoading(true);
-    const url = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${FOLDER_NAME}/${user}.json`;
-    try {
-        let response = await fetch(url, { headers: { "Authorization": `token ${GH_TOKEN}` } });
-        if (isRegisterMode) {
-            if (response.status === 200) { alert("Tài khoản đã tồn tại!"); showLoading(false); return; }
-            
-            // Dữ liệu khởi tạo cho học viên mới
-            const initData = { password: pass, createdAt: new Date().toLocaleString(), testHistory: [], logs: [] };
-            let createRes = await fetch(url, {
-                method: "PUT",
-                headers: { "Authorization": `token ${GH_TOKEN}`, "Content-Type": "application/json" },
-                body: JSON.stringify({ message: `Reg: ${user}`, content: btoa(unescape(encodeURIComponent(JSON.stringify(initData, null, 2)))) })
-            });
-            
-            if(createRes.ok) {
-                let resJSON = await createRes.json();
-                // LẤY NGAY MÃ SHA MỚI TẠO ĐỂ ĐĂNG NHẬP THẲNG
-                userFileSha = resJSON.content.sha; 
-                userDataObj = initData;
-                currentSessionUser = user;
-                
-                // Lưu nhanh vào bộ nhớ máy để học viên vào học luôn, không bị ảnh hưởng bởi độ trễ GitHub
-                localStorage.setItem("gh_saved_user", user);
-                localStorage.setItem("gh_saved_sha", userFileSha);
-                localStorage.setItem("gh_saved_data", JSON.stringify(initData));
-                
-                alert("🎉 Đăng ký thành công! Hệ thống tự động đăng nhập cho bạn.");
-                enterApp(user); // Vào thẳng ứng dụng, không bắt đăng nhập lại nữa
-            }
-        } else {
-            // Logic đăng nhập bình thường cho các ngày hôm sau
-            if (response.status !== 200) { alert("Tài khoản không tồn tại hoặc hệ thống đang đồng bộ, vui lòng thử lại sau 1 phút!"); showLoading(false); return; }
-            let resData = await response.json(); userFileSha = resData.sha;
-            let contentDecoded = decodeURIComponent(escape(atob(resData.content)));
-            userDataObj = JSON.parse(contentDecoded);
-            if(!userDataObj.testHistory) userDataObj.testHistory = [];
-            
-            if (userDataObj.password === pass) {
-                currentSessionUser = user;
-                localStorage.setItem("gh_saved_user", user);
-                localStorage.setItem("gh_saved_sha", userFileSha);
-                localStorage.setItem("gh_saved_data", contentDecoded);
-                enterApp(user);
-            } else { alert("Sai mật khẩu!"); }
-        }
-    } catch (err) { alert("Lỗi kết nối API!"); }
-    showLoading(false);
-}
-
-    function enterApp(username) {
-        document.getElementById("authZone").style.display = "none";
-        document.getElementById("mainAppZone").style.display = "block";
-        document.getElementById("lblCurrentUser").innerText = username.toUpperCase();
-        
-        // Kiểm tra xem hôm nay học viên đã làm bài kiểm tra chưa
-        const checkPassed = renderScoreBoard();
-        if (checkPassed) {
-            // Nếu hôm nay đã làm rồi -> Vào thẳng phần học từ
-            document.getElementById("panelQuiz").style.display = "none";
-            document.getElementById("panelStudy").style.display = "block";
-            applyFilters();
-        } else {
-            // Nếu chưa làm bài -> Tạo đề ngẫu nhiên từ kho 172 từ và bắt buộc làm bài
-            generateRandomQuiz();
-            document.getElementById("panelQuiz").style.display = "block";
-            document.getElementById("panelStudy").style.display = "none";
-        }
-    }
-
-    function logout() {
-        currentSessionUser = null; userFileSha = null; localStorage.clear(); currentQuizResultsMap = {};
-        document.getElementById("authUsername").value = ""; document.getElementById("authPassword").value = "";
-        document.getElementById("mainAppZone").style.display = "none"; document.getElementById("authZone").style.display = "block";
-        document.getElementById("scoreBoard").style.display = "none";
-    }
-
-    // TỰ ĐỘNG CHỌN NGẪU NHIÊN TỪ KHO 172 TỪ ĐỂ LÀM ĐỀ KIỂM TRA
-    function generateRandomQuiz() {
-        // Sao chép kho dữ liệu gốc 172 từ để xáo trộn
-        let pool = [...database];
-        for (let i = pool.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [pool[i], pool[j]] = [pool[j], pool[i]];
-        }
-        // Cắt lấy số lượng từ mà anh quyết định (ví dụ: 10 từ)
-        quizQuestions = pool.slice(0, Math.min(NUMBER_OF_QUIZ_WORDS, pool.length));
-        
-        // Dựng giao diện ô nhập liệu kiểm tra
-        const container = document.getElementById("quizContainer"); container.innerHTML = "";
-        quizQuestions.forEach((item, index) => {
-            container.innerHTML += `
-                <div class="quiz-item-row" id="qrow_${index}">
-                    <div class="quiz-index-num">${index + 1}.</div>
-                    <button class="btn-quiz-play" onclick="playAudioFile('${item.file}')">🔊 听音</button>
-                    <input type="text" class="input-quiz-answer" id="qinput_${index}" placeholder="输入单词拼写..." autocomplete="off">
-                </div>
-            `;
-        });
-    }
-
-    function playAudioFile(file) {
-        stopComparePlayback();
-        const player = document.getElementById("internalAudioPlayer");
-        player.src = encodeURI(cloudStorageUrl + file); player.load(); player.play().catch(e => {});
-    }
-
-    // CHẤM ĐIỂM BÀI KIỂM TRA, LƯU KẾT QUẢ VÀO MẢNG LỊCH SỬ 10 NGÀY
-    function gradeQuiz() {
-        let correctCount = 0;
-        currentQuizResultsMap = {}; // Reset lại bảng map kết quả đúng sai tạm thời
-
-        quizQuestions.forEach((item, index) => {
-            const userAns = document.getElementById(`qinput_${index}`).value.trim().toLowerCase();
-            const targetAns = item.word.toLowerCase();
-            const rowElement = document.getElementById(`qrow_${index}`);
-            
-            if (userAns === targetAns) {
-                rowElement.className = "quiz-item-row row-correct"; 
-                correctCount++;
-                currentQuizResultsMap[targetAns] = "CORRECT"; // Đánh dấu từ này làm đúng
-            } else {
-                rowElement.className = "quiz-item-row row-error";
-                currentQuizResultsMap[targetAns] = "ERROR";   // Đánh dấu từ này làm sai
-            }
-        });
-
-        const todayStr = new Date().toDateString();
-        
-        // Quản lý bộ nhớ lưu 10 ngày kiểm tra gần nhất
-        if(!userDataObj.testHistory) userDataObj.testHistory = [];
-        
-        // Nếu cùng 1 ngày bấm nộp lại thì cập nhật đè điểm ngày hôm đó, nếu ngày mới thì đẩy thêm vào mảng
-        let dayIndex = userDataObj.testHistory.findIndex(h => h.date === todayStr);
-        if(dayIndex !== -1) {
-            userDataObj.testHistory[dayIndex].score = `${correctCount}/${quizQuestions.length}`;
-        } else {
-            userDataObj.testHistory.push({ date: todayStr, score: `${correctCount}/${quizQuestions.length}` });
-        }
-        
-        // BẮT BUỘC: Nếu vượt quá 10 ngày, xóa bớt bản ghi ngày cũ nhất để giữ đúng 10 ngày
-        if (userDataObj.testHistory.length > 10) {
-            userDataObj.testHistory.shift(); // Xóa phần tử đầu tiên (ngày cũ nhất)
-        }
-
-        // Lưu trạng thái làm bài hôm nay vào LocalStorage để đồng bộ giao diện nhanh
-        localStorage.setItem("quiz_saved_score", `${correctCount}/${quizQuestions.length}`);
-        localStorage.setItem("quiz_saved_date", todayStr);
-        localStorage.setItem("quiz_current_map", JSON.stringify(currentQuizResultsMap));
-        
-        renderScoreBoard();
-        saveActionLog("BÀI_KIỂM_TRA_NGẪU_NHIÊN", "Hoàn thành", `Kết quả: ${correctCount}/${quizQuestions.length}`);
-        
-        alert(`测试 kết thúc! Điểm số của bạn: ${correctCount}/${quizQuestions.length}. Hệ thống sẽ chuyển bạn sang phần Luyện Học ngay bây giờ!`);
-
-        // Chuyển mượt sang phần học từ và cập nhật trạng thái Đúng/Sai lên thẻ học
-        setTimeout(() => {
-            document.getElementById("panelQuiz").style.display = "none";
-            document.getElementById("panelStudy").style.display = "block";
-            applyFilters();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }, 1200);
-    }
-
-    // XỬ LÝ THEO DÕI NGÀY & XÓA ĐIỂM GÓC PHẢI SAU 1 NGÀY VÀO HÔM SAU
-    function renderScoreBoard() {
-        const savedDate = localStorage.getItem("quiz_saved_date");
-        const savedScore = localStorage.getItem("quiz_saved_score");
-        const board = document.getElementById("scoreBoard");
-
-        if (savedDate && savedScore && currentSessionUser) {
-            const todayStr = new Date().toDateString();
-            if (savedDate !== todayStr) {
-                // Đã sang ngày hôm sau -> Xóa hiển thị kết quả hôm qua trên màn hình chính
-                localStorage.removeItem("quiz_saved_score");
-                localStorage.removeItem("quiz_saved_date");
-                localStorage.removeItem("quiz_current_map");
-                currentQuizResultsMap = {};
-                board.style.display = "none";
-                return false; 
-            } else {
-                // Cùng ngày -> Hiển thị điểm số ở góc phải
-                board.innerText = `📋 今日测试: ${savedScore}`;
-                board.style.display = "block";
-                
-                // Lấy lại danh sách đúng sai tạm thời của hôm nay để chuẩn bị hiển thị lên thẻ từ
-                let cacheMap = localStorage.getItem("quiz_current_map");
-                if(cacheMap) currentQuizResultsMap = JSON.parse(cacheMap);
-                
-                return true;  
-            }
-        } else {
-            board.style.display = "none";
-            return false;
-        }
-    }
-
-    // ĐỒNG BỘ FILE JSON LÊN GITHUB CỦA HỌC VIÊN
-    async function syncLogsToGitHub() {
-        if(!currentSessionUser) return;
-        const url = `https://api.github.com/repos/${GH_USER}/${GH_REPO}/contents/${FOLDER_NAME}/${currentSessionUser}.json`;
-        try {
-            await fetch(url, {
-                method: "PUT",
-                headers: { "Authorization": `token ${GH_TOKEN}`, "Content-Type": "application/json" },
-                body: JSON.stringify({ message: `Update Data: ${currentSessionUser}`, content: btoa(unescape(encodeURIComponent(JSON.stringify(userDataObj, null, 2)))), sha: userFileSha })
-            }).then(res => res.json()).then(data => { if(data.content) userFileSha = data.content.sha; });
-        } catch (e) {}
-    }
-
-    function saveActionLog(word, status, inputVal) {
-        if(!currentSessionUser) return;
-        if(!userDataObj.logs) userDataObj.logs = [];
-        userDataObj.logs.push({ word: word, result: status, typed: inputVal, time: new Date().toLocaleString() });
-        syncLogsToGitHub(); // Tự động đẩy file json cập nhật mảng lịch sử điểm và log lên Github
-    }
-
-    window.addEventListener("load", function() {
-        const savedUser = localStorage.getItem("gh_saved_user");
-        if(savedUser) {
-            currentSessionUser = savedUser;
-            userFileSha = localStorage.getItem("gh_saved_sha");
-            userDataObj = JSON.parse(localStorage.getItem("gh_saved_data"));
-            enterApp(savedUser);
-        }
-    });
-
-    // -------------------------------------------------------------------------
-    // KHO DỮ LIỆU GỐC 172 ÂM (ANH THAY THẾ TOÀN BỘ DANH SÁCH CỦA ANH VÀO ĐÂY)
-    // -------------------------------------------------------------------------
     const cloudStorageUrl = "https://cdn.jsdelivr.net/gh/tckzone/hoctiengviet@main/";
+
+    // Kho dữ liệu 172 từ chuẩn hóa của bạn
     const database = [
         { word: "a", mean: "字母 a / A", group: "chu_cai", file: "a.mp3" },
         { word: "ă", mean: "字母 ă / Ă", group: "chu_cai", file: "ă.mp3" },
@@ -656,78 +675,87 @@ async function handleAuth() {
         { word: "ương", mean: "韵母 hương", group: "ư", file: "ương.mp3" }
     ];
 
-    let activeGroups = ["chu_cai", "phu_am"]; let filteredList = []; let idx = 0;
-    let selectedCompareFiles = []; let currentCompareIdx = 0; let isComparePlaying = false;
+    let activeGroups = ["chu_cai", "phu_am"];
+    let filteredList = [];
+    let idx = 0;
+
+    let selectedCompareFiles = [];
+    let currentCompareIdx = 0;
+    let isComparePlaying = false;
+
+    document.addEventListener("DOMContentLoaded", function() {
+        renderTags();
+        applyFilters();
+        buildCompareCheckboxGrid();
+    });
 
     function renderTags() {
-        const box = document.getElementById("tagBox"); if (!box) return; box.innerHTML = "";
+        const box = document.getElementById("tagBox");
+        if (!box) return;
+        box.innerHTML = "";
         activeGroups.forEach(g => {
-            let label = g === "chu_cai" ? "字母表" : g === "phu_am" ? "辅音" : g.toUpperCase() + "组";
+            let label = g === "chu_cai" ? "字母表" : g === "phu_am" ? "辅音" : g === "i_y" ? "I/Y组" : g.toUpperCase() + "组";
             box.innerHTML += `<div class="tag-item" onclick="removeGroup('${g}')">${label} ✕</div>`;
         });
+        if (activeGroups.length === 0) box.innerHTML = `<span style="color:#aaa; font-size:13px;">请选择字母组进行过滤...</span>`;
     }
+
     function addGroupFilter(val) {
-        if (!val) return; if (val === "all") activeGroups = ["all"];
+        if (!val) return;
+        if (val === "all") activeGroups = ["all"];
         else { activeGroups = activeGroups.filter(i => i !== "all"); if (!activeGroups.includes(val)) activeGroups.push(val); }
-        renderTags(); applyFilters(); document.getElementById("groupAdder").value = "";
+        renderTags(); applyFilters();
+        document.getElementById("groupAdder").value = "";
     }
+
     function removeGroup(g) { activeGroups = activeGroups.filter(i => i !== g); renderTags(); applyFilters(); }
+
     function applyFilters() {
         filteredList = activeGroups.length === 0 ? [] : activeGroups.includes("all") ? [...database] : database.filter(item => activeGroups.includes(item.group));
-        idx = 0; syncCardUI(); renderTags(); buildCompareCheckboxGrid();
+        idx = 0; syncCardUI();
     }
-    
-    // ĐỒNG BỘ HIỂN THỊ THẺ TỪ VÀ HIỂN THỊ KẾT QUẢ ĐÚNG/SAI CỦA BÀI TEST TRƯỚC ĐÓ
+
     function syncCardUI() {
         document.getElementById("totalProgress").innerText = filteredList.length;
-        document.getElementById("alertBox").innerText = ""; document.getElementById("dictationField").value = "";
+        document.getElementById("alertBox").innerText = "";
+        document.getElementById("dictationField").value = "";
         document.getElementById("cardInner").classList.remove("is-flipped");
         
         if (filteredList.length === 0) {
             document.getElementById("currentProgress").innerText = 0;
-            document.getElementById("wordRevealTarget").innerText = "---"; document.getElementById("meanRevealTarget").innerText = "---"; return;
+            document.getElementById("wordRevealTarget").innerText = "---";
+            document.getElementById("meanRevealTarget").innerText = "---";
+            return;
         }
-        
-        const currentWordObj = filteredList[idx];
         document.getElementById("currentProgress").innerText = idx + 1;
-        document.getElementById("wordRevealTarget").innerText = currentWordObj.word;
-        document.getElementById("meanRevealTarget").innerText = currentWordObj.mean;
-        
-        // KIỂM TRA TRẠNG THÁI ĐÚNG / SAI TỪ BÀI THI VÀO ĐỂ HIỂN THỊ LÊN BADGE THẺ HỌC
-        const badge = document.getElementById("quizStatusBadge");
-        const wordKey = currentWordObj.word.toLowerCase();
-        
-        if (currentQuizResultsMap[wordKey] === "CORRECT") {
-            badge.innerText = "🎉 Bài kiểm tra: BẠN ĐÃ LÀM ĐÚNG ÂM NÀY";
-            badge.className = "quiz-status-badge badge-correct";
-        } else if (currentQuizResultsMap[wordKey] === "ERROR") {
-            badge.innerText = "❌ Bài kiểm tra: BẠN ĐÃ LÀM SAI ÂM NÀY";
-            badge.className = "quiz-status-badge badge-error";
-        } else {
-            badge.innerText = "⚪ Âm này không xuất hiện trong bài kiểm tra hôm nay";
-            badge.className = "quiz-status-badge badge-none";
-        }
-
+        document.getElementById("wordRevealTarget").innerText = filteredList[idx].word;
+        document.getElementById("meanRevealTarget").innerText = filteredList[idx].mean;
         playSoundDirectly();
     }
 
     function playSoundDirectly() {
-        if (filteredList.length === 0 || document.getElementById("panelStudy").style.display === "none") return;
+        if (filteredList.length === 0) return;
         stopComparePlayback();
         const player = document.getElementById("internalAudioPlayer");
-        player.src = encodeURI(cloudStorageUrl + filteredList[idx].file); player.load(); player.play().catch(e => {});
+        player.src = encodeURI(cloudStorageUrl + filteredList[idx].file); 
+        player.load(); player.play().catch(e => console.log(e));
     }
+
     function shuffleCards() {
         if (filteredList.length <= 1) return;
         for (let i = filteredList.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1)); [filteredList[i], filteredList[j]] = [filteredList[j], filteredList[i]];
+            const j = Math.floor(Math.random() * (i + 1));
+            [filteredList[i], filteredList[j]] = [filteredList[j], filteredList[i]];
         }
         idx = 0; syncCardUI();
     }
+
     function flipCard() { if (filteredList.length > 0) document.getElementById("cardInner").classList.toggle("is-flipped"); }
     function movePointer(s) { if (filteredList.length === 0) return; idx = (idx + s + filteredList.length) % filteredList.length; syncCardUI(); }
-    function openCompareWindow() { document.getElementById("mainAppZone").style.display = "none"; document.getElementById("compareWindowModal").style.display = "block"; }
+
+    function openCompareWindow() { document.getElementById("mainAppZone").style.display = "none"; document.getElementById("compareWindowModal").style.display = "block"; buildCompareCheckboxGrid(); }
     function closeCompareWindow() { stopComparePlayback(); document.getElementById("compareWindowModal").style.display = "none"; document.getElementById("mainAppZone").style.display = "block"; }
+
     function buildCompareCheckboxGrid() {
         const container = document.getElementById("compareCheckboxContainer"); if (!container) return; container.innerHTML = "";
         database.forEach((item) => {
@@ -735,40 +763,49 @@ async function handleAuth() {
             container.innerHTML += `<label class="compare-label-box"><input type="checkbox" value="${item.file}" data-word="${item.word}" ${isChecked} onchange="handleCompareGridChange()">${item.word}</label>`;
         });
     }
+
     function handleCompareGridChange() {
         const checkboxes = document.querySelectorAll("#compareCheckboxContainer input[type='checkbox']");
         let selectedWords = []; selectedCompareFiles = [];
         checkboxes.forEach(cb => { if (cb.checked) { selectedWords.push(cb.getAttribute("data-word")); selectedCompareFiles.push(cb.value); } });
         document.getElementById("compareWordsInput").value = selectedWords.join(" → ");
     }
+
     function startComparePlayback() {
-        if (selectedCompareFiles.length < 2) { alert("请至少勾选 2 个单词！"); return; }
-        document.getElementById("internalAudioPlayer").pause(); currentCompareIdx = 0; isComparePlaying = true; playNextCompareTrack(document.getElementById("compareAudioPlayer"));
+        if (selectedCompareFiles.length < 2) { alert("请至少勾选 2 个单词进行对比！"); return; }
+        document.getElementById("internalAudioPlayer").pause(); currentCompareIdx = 0; isComparePlaying = true;
+        playNextCompareTrack(document.getElementById("compareAudioPlayer"));
     }
+
     function playNextCompareTrack(player) {
         if (!isComparePlaying || currentCompareIdx >= selectedCompareFiles.length) { isComparePlaying = false; return; }
-        player.src = encodeURI(cloudStorageUrl + selectedCompareFiles[currentCompareIdx]); player.load(); player.play().catch(e => {});
+        player.src = encodeURI(cloudStorageUrl + selectedCompareFiles[currentCompareIdx]);
+        player.load(); player.play().catch(e => console.log(e));
         player.onended = function() { currentCompareIdx++; setTimeout(() => { playNextCompareTrack(player); }, 600); };
     }
+
     function stopComparePlayback() { isComparePlaying = false; const player = document.getElementById("compareAudioPlayer"); if (player) { player.pause(); player.src = ""; } }
     function clearCompareSelection() { stopComparePlayback(); document.querySelectorAll("#compareCheckboxContainer input[type='checkbox']").forEach(cb => cb.checked = false); document.getElementById("compareWordsInput").value = ""; selectedCompareFiles = []; }
 
-    // XỬ LÝ SỰ KIỆN NHẤN ENTER TRONG PHẦN LUYỆN HỌC THẺ TỪ
     document.getElementById("dictationField").addEventListener("keydown", function(e) {
         if (e.key === "Enter") {
             e.preventDefault();
-            const inputVal = this.value.trim(); const targetWord = filteredList[idx].word;
-            const alertElement = document.getElementById("alertBox"); if(inputVal === "") return;
-            if (inputVal.toLowerCase() === targetWord.toLowerCase()) {
+            const inputVal = this.value.trim().toLowerCase();
+            const answerVal = filteredList[idx].word.toLowerCase();
+            const alertElement = document.getElementById("alertBox");
+            if(inputVal === "") return;
+            if (inputVal === answerVal) {
                 alertElement.className = "result-message result-success"; alertElement.innerText = "🎉 正确！拼写完全一致！";
                 document.getElementById("cardInner").classList.add("is-flipped");
-                saveActionLog(targetWord, "Chính xác", inputVal);
             } else {
                 alertElement.className = "result-message result-error"; alertElement.innerText = `❌ 错误！请点击卡片翻转查看正解`;
-                saveActionLog(targetWord, "Sai", inputVal);
             }
         }
     });
 </script>
+
+<!-- NHÚNG FILE SCRIPT CHẤM ĐIỂM RIÊNG BIỆT -->
+<script src="voice-eval.js"></script>
+
 </body>
 </html>
