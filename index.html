@@ -102,11 +102,11 @@
 
     <div id="authZone" class="auth-container">
         <div class="auth-title" id="authFormTitle">🔐 登录学习与测试系统</div>
-        <input type="text" id="authUsername" class="auth-input" placeholder="请输入您的名字 (Viết liền không dấu)..." autocomplete="off">
-        <input type="password" id="authPassword" class="auth-input" placeholder="请输入密码 (Nhập mật khẩu)...">
+        <input type="text" id="authUsername" class="auth-input" placeholder="请输入您的名字 (拼音或连写无空格)..." autocomplete="off">
+        <input type="password" id="authPassword" class="auth-input" placeholder="请输入密码 ...">
         <button class="btn-auth" id="btnAuthSubmit" onclick="handleAuth()">立即登录 (Đăng nhập)</button>
-        <div class="auth-toggle" id="authToggleLink" onclick="toggleAuthMode()">Không có tài khoản? Đăng ký ngay</div>
-        <div class="loading-text" id="authLoading">⏳ Đang đồng bộ dữ liệu với GitHub...</div>
+        <div class="auth-toggle" id="authToggleLink" onclick="toggleAuthMode()">没有账号？立即注册</div>
+        <div class="loading-text" id="authLoading">⏳同步数据...</div>
     </div>
 
     <div id="mainAppZone">
@@ -117,24 +117,34 @@
 
         <div id="panelQuiz">
             <div class="config-section" style="margin-bottom: 12px; border-left: 4px solid var(--accent-color);">
-                <div class="section-title" style="color:var(--accent-color); font-size:16px;">✍️ 听力能力测试 (Bài kiểm tra bắt buộc đầu ngày)</div>
-                <div style="font-size:12px; color:#666; margin-top:4px;">💡 Hệ thống tự động bốc ngẫu nhiên từ kho 172 âm. Vui lòng nghe và nhập đúng拼写 để mở khóa phần học từ.</div>
+                <div class="section-title" style="color:var(--accent-color); font-size:16px;">✍️ 听力能力测试 (每日必考测试)</div>
+                <div style="font-size:12px; color:#666; margin-top:4px;">💡 请听录音并输入正确的拼写以解锁单词学习模块.</div>
             </div>
             
             <div id="quizContainer"></div>
-            <button class="btn-submit-quiz" onclick="gradeQuiz()">提交测试解锁学习 (Nộp bài & Xem kết quả)</button>
+            <button class="btn-submit-quiz" onclick="gradeQuiz()">提交测试解锁学习 (提交并查看结果)</button>
         </div>
 
         <div id="panelStudy">
             <div class="config-section" style="border-left: 4px solid var(--success-color);">
-                <div class="section-title" style="color:var(--success-color); font-size:16px;">🎉 学习中心 (Đã mở khóa phần luyện học)</div>
+                <div class="section-title" style="color:var(--success-color); font-size:16px;">🎉 学习中心 (已解锁练习模块)</div>
                 <div class="tag-container" id="tagBox" style="margin-top:8px;"></div>
                 <div class="round-select-box">
                     <select id="groupAdder" onchange="addGroupFilter(this.value)">
-                        <option value="">+ 添加组合过滤...</option>
-                        <option value="all">显示全部 (Tất cả từ)</option>
-                        <option value="chu_cai">Bảng chữ cái (a, b, c...)</option>
-                        <option value="phu_am">Phụ âm ghép (ch, kh, th...)</option>
+                        <option value="all">显示全部 (172个字母与韵母)</option>
+                    <option value="chu_cai">Bảng chữ cái tiếng Việt (a, b, c...)</option>
+                    <option value="phu_am">Phụ âm ghép đầu (ch, kh, th...)</option>
+                    <option value="a">A 核心韵母组 (a, ia, ua, ao, ai...)</option>
+                    <option value="ă">Ă 核心韵母组 (ă, ac, at, an...)</option>
+                    <option value="â">Â 核心韵母组 (â, ây, ât, ân, âm...)</option>
+                    <option value="e">E 核心韵母组 (e, eo, et, en, em...)</option>
+                    <option value="ê">Ê 核心韵母组 (ê, êu, êt, ên, êm...)</option>
+                    <option value="o">O 核心韵母组 (o, oi, oc, ot, on...)</option>
+                    <option value="ô">Ô 核心韵母组 (ô, ôi, ôc, ôt, ôn...)</option>
+                    <option value="ơ">Ơ 核心韵母组 (ơ, ơi, ơt, ơn, ơm...)</option>
+                    <option value="i_y">I / Y 核心韵母组 (i, y, iu, it, in, iêu...)</option>
+                    <option value="u">U 核心韵母组 (u, ua, ui, uc, ut, un...)</option>
+                    <option value="ư">Ư 核心韵母组 (ư, ưa, ưu, ưi, ưc, ươc...)</option>
                     </select>
                 </div>
                 <button class="btn-shuffle" onclick="shuffleCards()">🔀 打乱顺序 / 刷新词组</button>
