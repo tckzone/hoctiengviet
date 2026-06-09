@@ -16,6 +16,7 @@
             --bg-color: #f5f7fa;
             --card-bg: #ffffff;
             --text-color: #333333;
+            --success-color: #4CAF50;
         }
 
         body {
@@ -33,6 +34,20 @@
             max-width: 480px; 
             margin: 0 auto;
             text-align: left;
+        }
+
+        /* --- MÀN HÌNH KIỂM TRA BẮT BUỘC ĐẦU NGÀY --- */
+        #dailyTestZone {
+            display: block; /* Mặc định hiển thị chặn trước */
+            background: #fff;
+            border-radius: 16px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        
+        /* --- MÀN HÌNH HỌC TẬP CHÍNH (MẶC ĐỊNH ẨN) --- */
+        #mainAppZone {
+            display: none; 
         }
 
         .config-section {
@@ -157,7 +172,6 @@
 
         .revealed-word { font-size: 38px; font-weight: bold; color: #5c4cf4; margin: 0; line-height: 1.2; }
 
-        /* KHU VỰC CHỨA KHỐI NÚT CHỨC NĂNG PHÍA TRÊN CARD TRONG 1000022535.JPG */
         .top-action-bar {
             position: absolute;
             top: 12px;
@@ -177,7 +191,6 @@
             border-radius: 20px !important;
         }
 
-        /* NÚT CHẤM ĐIỂM THÊM MỚI BÊN CẠNH NÚT SO SÁNH */
         .btn-open-eval {
             width: auto !important;
             padding: 6px 14px !important;
@@ -278,7 +291,6 @@
         .btn-prev { background: #f5f5f5 !important; color: #888 !important; border: 1px solid #e8e8e8 !important; }
         .btn-next { background: #5c4cf4 !important; color: white !important; }
 
-        /* --- STYLE TOÀN BỘ POPUP CHẤM ĐIỂM VÀ VÒNG TRÒN % --- */
         .eval-popup-content {
             background: #ffffff;
             border-radius: 16px;
@@ -288,7 +300,6 @@
             margin-top: 20px;
         }
 
-        /* Thiết kế vùng chứa SVG Vòng tròn điểm số */
         .circle-score-wrapper {
             position: relative;
             width: 130px;
@@ -296,7 +307,7 @@
             margin: 20px auto;
         }
         .circle-score-wrapper svg {
-            transform: rotate(-90deg); /* Xoay SVG để tiến trình chạy từ đỉnh trên cùng xuống */
+            transform: rotate(-90deg);
             width: 130px;
             height: 130px;
         }
@@ -322,7 +333,6 @@
             color: #333;
         }
 
-        /* Nút nhấn ghi âm hình tròn màu xanh lá cây */
         .btn-round-record {
             width: 86px !important;
             height: 86px !important;
@@ -344,6 +354,16 @@
         .btn-round-record:active {
             transform: scale(0.95);
         }
+        .btn-round-record.recording {
+            background: #f44336 !important;
+            animation: pulse 1.2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.4); }
+            70% { box-shadow: 0 0 0 12px rgba(244, 67, 54, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(244, 67, 54, 0); }
+        }
 
         .eval-detail-box {
             background: #f9f9f9;
@@ -355,6 +375,54 @@
             font-size: 14px;
             line-height: 1.5;
         }
+
+        /* --- STYLE KHU VỰC BÀI KIỂM TRA KHÓA ĐẦU NGÀY --- */
+        .test-grid-item {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        .test-item-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .btn-test-audio {
+            width: auto !important;
+            margin-bottom: 0 !important;
+            background: var(--primary-color);
+            color: white;
+            padding: 8px 12px !important;
+            font-size: 14px !important;
+        }
+        .btn-test-mic {
+            width: auto !important;
+            margin-bottom: 0 !important;
+            background: #4CAF50;
+            color: white;
+            padding: 8px 12px !important;
+            font-size: 14px !important;
+        }
+        .btn-test-mic.listening {
+            background: #f44336 !important;
+        }
+        .test-feedback {
+            font-size: 12px;
+            font-weight: bold;
+            margin-top: 4px;
+        }
+        .history-summary {
+            font-size: 13px;
+            background: #eef2ff;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            color: #333;
+            line-height: 1.4;
+        }
     </style>
 </head>
 <body>
@@ -363,8 +431,33 @@
 <audio id="compareAudioPlayer"></audio>
 
 <div class="container">
-    <div id="mainAppZone">
+
+    <!-- MÀN HÌNH 1: BÀI KIỂM TRA BẮT BUỘC ĐẦU NGÀY (GATEKEEPER) -->
+    <div id="dailyTestZone">
         <div class="config-section">
+            <div class="section-title" style="color:var(--primary-color); font-size:16px;">🎯 每日挑战: 听写测验 (Kiểm tra đầu ngày)</div>
+            <div style="font-size: 13px; color: #666; margin-bottom: 8px;">
+                您必须先完成今日的 <b id="lblSettingCount">5</b> 个随机音节考核，才能解锁进入卡片学习系统。
+            </div>
+            <div id="testDateNotice" style="font-weight: bold; font-size: 13px; color: #e57373;"></div>
+        </div>
+
+        <div id="testGridContainer">
+            <!-- Các ô kiểm tra sinh tự động ở đây -->
+        </div>
+
+        <button id="btnSubmitTest" style="background: var(--success-color); color: white; margin-top: 10px;" onclick="evaluateDailyTest()">
+            📤 提交测验并进入学习 (Nộp bài & Vào học)
+        </button>
+    </div>
+
+
+    <!-- MÀN HÌNH 2: HỌC TẬP THẺ TỪ CHÍNH (CHỈ XUẤT HIỆN KHI QUA ĐƯỢC BÀI KIỂM TRA) -->
+    <div id="mainAppZone">
+        <!-- Khu vực hiển thị tóm tắt kết quả kiểm tra đầu ngày lồng vào phần học -->
+        <div class="history-summary" id="studyHistoryLog"></div>
+
+        <div class="config-section" style="margin-top: 10px;">
             <div class="section-title">📁 越南语发音核心字母组 (点击切换过滤)</div>
             <div class="tag-container" id="tagBox"></div>
             
@@ -392,7 +485,6 @@
         </div>
 
         <div class="card-section">
-            <!-- ĐƯỢC CHỈNH SỬA THÀNH KHỐI CHỨA 2 NÚT NẰM CẠNH NHAU TRÊN THẺ CARD THEO ẢNH 1000022535.JPG -->
             <div class="top-action-bar">
                 <button class="btn-open-compare" onclick="openCompareWindow()">▶ 发音对比</button>
                 <button class="btn-open-eval" onclick="openEvalPopup()">🎙️ 发音评测</button>
@@ -438,8 +530,7 @@
         </div>
     </div>
 
-    <!-- POPUP HỘP THOẠI CHẤM ĐIỂM PHÁT ÂM VÒNG TRÒN ĐỔI MÀU (THÊM MỚI) -->
-    <!-- POPUP HỘP THOẠI CHẤM ĐIỂM PHÁT ÂM VÒNG TRÒN ĐỔI MÀU (Cập nhật có danh sách chọn âm mục tiêu) -->
+    <!-- POPUP HỘP THOẠI CHẤM ĐIỂM PHÁT ÂM VÒNG TRÒN ĐỔI MÀU -->
     <div id="evalPopupModal" class="compare-modal">
         <div class="compare-modal-header">
             <h3>🎙️ AI 发音评测 Chấm điểm phát âm</h3>
@@ -447,19 +538,16 @@
         </div>
 
         <div class="eval-popup-content">
-            <!-- DANH SÁCH CHỌN ÂM MUỐN SO SÁNH (MỚI BỔ SUNG) -->
             <div style="text-align: left; margin-bottom: 15px;">
                 <label for="evalWordSelector" style="display:block; font-size:13px; font-weight:bold; color:#5c4cf4; margin-bottom:5px;">
                     🎯 选择要评测的音频 (Chọn âm muốn chấm điểm):
                 </label>
                 <select id="evalWordSelector" onchange="handleEvalWordSelectChange(this.value)" style="border: 2px solid #5c4cf4; background-color: #fcfbff;">
-                    <!-- Dữ liệu tùy chọn sẽ được hàm openEvalPopup() tự động đổ vào đây -->
                 </select>
             </div>
 
             <div style="font-size:14px; color:#444; font-weight:bold; margin-top: 20px;">ĐỘ CHÍNH XÁC PHÁT ÂM (发音准确率)</div>
             
-            <!-- Thành phần Vòng tròn tiến trình SVG lấp đầy điểm số -->
             <div class="circle-score-wrapper">
                 <svg>
                     <circle class="circle-bg" cx="65" cy="65" r="54"></circle>
@@ -469,20 +557,18 @@
                 <div class="circle-text" id="evalCirclePercentText">0%</div>
             </div>
 
-            <!-- Nút nhấn ghi âm tròn lớn màu xanh lá cây -->
             <button class="btn-round-record" id="btnEvalRecordTrigger" onclick="toggleEvalRecording()">
                 🎙️<br><span style="font-size:12px;">Nhấn đọc</span>
             </button>
             <div style="font-size:12px; color:#999; margin-top:5px;">Bấm nút trên, đợi đổi màu rồi đọc thật to rõ ràng nhé!</div>
 
-            <!-- Vùng bảng hiển thị so sánh chi tiết text khi có kết quả -->
             <div class="eval-detail-box" id="evalResultDetails" style="visibility: hidden;">
                 <div id="evalResultComparisonText">---</div>
             </div>
         </div>
     </div>
 
-    <!-- POPUP SO SÁNH PHÁT ÂM CŨ -->
+    <!-- POPUP SO SÁNH PHÁT ÂM -->
     <div id="compareWindowModal" class="compare-modal">
         <div class="compare-modal-header">
             <h3>📊 发音对比工具 (So sánh phát âm)</h3>
@@ -505,7 +591,7 @@
 <script>
     const cloudStorageUrl = "https://cdn.jsdelivr.net/gh/tckzone/hoctiengviet@main/";
 
-    // Kho dữ liệu 172 từ chuẩn hóa của bạn
+    // Cơ sở dữ liệu gốc của bạn
     const database = [
         { word: "a", mean: "字母 a / A", group: "chu_cai", file: "a.mp3" },
         { word: "ă", mean: "字母 ă / Ă", group: "chu_cai", file: "ă.mp3" },
@@ -524,7 +610,7 @@
         { word: "m", mean: "字母 m / M", group: "chu_cai", file: "m.mp3" },
         { word: "n", mean: "字母 n / N", group: "chu_cai", file: "n.mp3" },
         { word: "o", mean: "字母 o / O", group: "chu_cai", file: "o.mp3" },
-        { word: "ô", mean: "字母 ô / Ô", group: "chu_cai", file: "ô.mp3" },
+        { word: "ô", mean: "字母 ô / Ô", group: "ô.mp3" },
         { word: "ơ", mean: "字母 ơ / Ơ", group: "chu_cai", file: "ơ.mp3" },
         { word: "p", mean: "字母 p / P", group: "chu_cai", file: "p.mp3" },
         { word: "q", mean: "字母 q / Q", group: "chu_cai", file: "q.mp3" },
@@ -675,6 +761,7 @@
         { word: "ương", mean: "韵母 hương", group: "ư", file: "ương.mp3" }
     ];
 
+    const TEST_QUANTITY = 5; 
     let activeGroups = ["chu_cai", "phu_am"];
     let filteredList = [];
     let idx = 0;
@@ -683,129 +770,540 @@
     let currentCompareIdx = 0;
     let isComparePlaying = false;
 
+    // Biến lưu trạng thái bài test
+    let currentDailyTestData = []; 
+    let isTestSubmittedToday = false;
+
+    // Web Speech API cho Android WebView
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let globalRecognition = null;
+    if (SpeechRecognition) {
+        globalRecognition = new SpeechRecognition();
+        globalRecognition.continuous = false;
+        globalRecognition.lang = 'vi-VN';
+        globalRecognition.interimResults = false;
+        globalRecognition.maxAlternatives = 1;
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
+        document.getElementById('lblSettingCount').innerText = TEST_QUANTITY;
+        checkAndInitializeGatekeeper(); 
+    });
+
+    // --- XỬ LÝ ĐIỀU HƯỚNG LOGIC KHÓA (GATEKEEPER) CỦA ỨNG DỤNG ---
+    function checkAndInitializeGatekeeper() {
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const lastRunDate = localStorage.getItem('lastTestDate');
+        const savedTestData = localStorage.getItem('currentTestData');
+
+        if (lastRunDate === todayStr && savedTestData) {
+            // Hôm nay đã làm bài test rồi -> Bỏ qua màn hình test, mở thẳng màn hình học tập chính
+            isTestSubmittedToday = true;
+            currentDailyTestData = JSON.parse(savedTestData);
+            
+            document.getElementById('dailyTestZone').style.display = 'none';
+            document.getElementById('mainAppZone').style.display = 'block';
+            
+            // Khởi động các dữ liệu học tập thẻ từ cũ
+            renderTags();
+            applyFilters();
+            buildCompareCheckboxGrid();
+            updateStudyHistoryDisplay();
+        } else {
+            // Chưa làm test hoặc bước sang ngày mới -> Hiện màn hình chặn, ẩn màn hình học
+            isTestSubmittedToday = false;
+            document.getElementById('dailyTestZone').style.display = 'block';
+            document.getElementById('mainAppZone').style.display = 'none';
+            
+            generateRandomTestData();
+            localStorage.setItem('currentTestData', JSON.stringify(currentDailyTestData));
+            localStorage.setItem('lastTestDate', todayStr);
+            renderDailyTestUI();
+        }
+    }
+
+    function generateRandomTestData() {
+        currentDailyTestData = [];
+        // Lấy ngẫu nhiên hoàn toàn từ kho database 172 âm tiết
+        let shuffledDb = [...database].sort(() => 0.5 - Math.random());
+        let selectedItems = shuffledDb.slice(0, TEST_QUANTITY);
+
+        selectedItems.forEach((item, index) => {
+            currentDailyTestData.push({
+                id: index,
+                word: item.word,
+                mean: item.mean,
+                file: item.file,
+                userAnswer: "",
+                userSpeechText: "",
+                isCorrect: false,
+                speechScore: 0
+            });
+        });
+    }
+
+    function renderDailyTestUI() {
+        const todayStr = new Date().toISOString().slice(0, 10);
+        const container = document.getElementById('testGridContainer');
+        const notice = document.getElementById('testDateNotice');
+        container.innerHTML = "";
+
+        notice.innerHTML = `📅 测验日期 (Ngày kiểm tra): ${todayStr}`;
+
+        currentDailyTestData.forEach((item) => {
+            const cell = document.createElement('div');
+            cell.className = "test-grid-item";
+
+            const rowActions = document.createElement('div');
+            rowActions.className = "test-item-row";
+
+            const btnAudio = document.createElement('button');
+            btnAudio.className = "btn-test-audio";
+            btnAudio.innerHTML = `🔊 听音 (Nghe #${item.id + 1})`;
+            btnAudio.onclick = () => { playTestSound(item.file); };
+
+            const btnMic = document.createElement('button');
+            btnMic.className = "btn-test-mic";
+            btnMic.id = `btnMic_${item.id}`;
+            btnMic.innerHTML = `🎙️ 读音 (Phát âm)`;
+            btnMic.onclick = () => { handleSpeechTesting(item.id); };
+
+            rowActions.appendChild(btnAudio);
+            rowActions.appendChild(btnMic);
+            cell.appendChild(rowActions);
+
+            const inputField = document.createElement('input');
+            inputField.type = "text";
+            inputField.id = `testInput_${item.id}`;
+            inputField.placeholder = "在此输入听到的拼写 (Nhập chính tả)...";
+            inputField.value = item.userAnswer;
+            
+            inputField.oninput = (e) => {
+                currentDailyTestData[item.id].userAnswer = e.target.value.trim();
+                localStorage.setItem('currentTestData', JSON.stringify(currentDailyTestData));
+            };
+            cell.appendChild(inputField);
+
+            const feedback = document.createElement('div');
+            feedback.className = "test-feedback";
+            feedback.id = `feedback_${item.id}`;
+            cell.appendChild(feedback);
+
+            container.appendChild(cell);
+        });
+    }
+
+    function playTestSound(fileName) {
+        const player = document.getElementById('internalAudioPlayer');
+        player.src = cloudStorageUrl + fileName;
+        player.play().catch(err => console.log("Audio play error"));
+    }
+
+    function handleSpeechTesting(itemId) {
+        if (!globalRecognition) {
+            alert("⚠️ 您的系统组件不支持 Web Speech接口。");
+            return;
+        }
+
+        const btn = document.getElementById(`btnMic_${itemId}`);
+        
+        globalRecognition.onstart = () => {
+            btn.classList.add('listening');
+            btn.innerHTML = "🛑 正在听...";
+        };
+
+        globalRecognition.onerror = () => {
+            btn.classList.remove('listening');
+            btn.innerHTML = "🎙️ 读音 (Thử lại)";
+        };
+
+        globalRecognition.onend = () => {
+            btn.classList.remove('listening');
+            btn.innerHTML = "🎙️ 读音 (Phát âm)";
+        };
+
+        globalRecognition.onresult = (event) => {
+            const speechResult = event.results[0][0].transcript.toLowerCase().replace(/[\.\?\,\!]/g, "").trim();
+            currentDailyTestData[itemId].userSpeechText = speechResult;
+            
+            const targetWord = currentDailyTestData[itemId].word.toLowerCase().trim();
+            let score = 0;
+            if (speechResult === targetWord) {
+                score = 100;
+            } else if (speechResult.includes(targetWord) || targetWord.includes(speechResult)) {
+                score = 70;
+            } else {
+                score = 10;
+            }
+            currentDailyTestData[itemId].speechScore = score;
+            
+            localStorage.setItem('currentTestData', JSON.stringify(currentDailyTestData));
+            alert(`🎙️ 识别文本: "${speechResult}"`);
+        };
+
+        globalRecognition.start();
+    }
+
+    // NỘP BÀI KIỂM TRA ĐỂ GIẢI PHÓNG KHÓA VÀO PHẦN HỌC CHÍNH
+    function evaluateDailyTest() {
+        let correctCount = 0;
+        let uncompleted = false;
+
+        // Kiểm tra xem người học đã điền đầy đủ đáp án chưa
+        currentDailyTestData.forEach((item) => {
+            if (!item.userAnswer) {
+                uncompleted = true;
+            }
+            if (item.userAnswer.toLowerCase() === item.word.toLowerCase()) {
+                correctCount++;
+                item.isCorrect = true;
+            }
+        });
+
+        if (uncompleted) {
+            if(!confirm("⚠️ 您还有拼写未填写完整，确认现在就要提交吗？")) {
+                return;
+            }
+        }
+
+        isTestSubmittedToday = true;
+        localStorage.setItem('currentTestData', JSON.stringify(currentDailyTestData));
+
+        // Đẩy dữ liệu vào lịch sử học tập chung
+        let history = localStorage.getItem('vietnamese_study_history');
+        let historyArr = history ? JSON.parse(history) : [];
+        historyArr.push({
+            date: new Date().toISOString().slice(0, 10),
+            total: TEST_QUANTITY,
+            correct: correctCount,
+            score: Math.round((correctCount / TEST_QUANTITY) * 100)
+        });
+        localStorage.setItem('vietnamese_study_history', JSON.stringify(historyArr));
+        
+        alert(`🎉 测验提交成功! 您答对了 ${correctCount}/${TEST_QUANTITY} 道题。\n👉 现在为您解锁并进入卡片学习系统。`);
+
+        // Chuyển đổi giao diện ngay lập tức sang phần Học tập
+        document.getElementById('dailyTestZone').style.display = 'none';
+        document.getElementById('mainAppZone').style.display = 'block';
+
+        // Tải cấu trúc thẻ học tập
         renderTags();
         applyFilters();
         buildCompareCheckboxGrid();
-    });
-
-    function renderTags() {
-        const box = document.getElementById("tagBox");
-        if (!box) return;
-        box.innerHTML = "";
-        activeGroups.forEach(g => {
-            let label = g === "chu_cai" ? "字母表" : g === "phu_am" ? "辅音" : g === "i_y" ? "I/Y组" : g.toUpperCase() + "组";
-            box.innerHTML += `<div class="tag-item" onclick="removeGroup('${g}')">${label} ✕</div>`;
-        });
-        if (activeGroups.length === 0) box.innerHTML = `<span style="color:#aaa; font-size:13px;">请选择字母组进行过滤...</span>`;
+        updateStudyHistoryDisplay();
     }
 
+    // Xuất dữ liệu kiểm tra hiển thị lồng trực tiếp trên đầu khu vực học tập chính
+    function updateStudyHistoryDisplay() {
+        const logBox = document.getElementById('studyHistoryLog');
+        if (!currentDailyTestData || currentDailyTestData.length === 0) return;
+
+        let html = `<div style="font-weight:bold; color:var(--primary-color); margin-bottom:5px;">📊 今日测试成绩报告 (Kết quả kiểm tra hôm nay):</div><table style="width:100%; font-size:12px; border-collapse:collapse;" border="1" bordercolor="#ddd">`;
+        html += `<tr style="background:#f1f3f9;"><th>🎯 原音节</th><th>✍️ 您的拼写</th><th>🎙️ 语音识别</th></tr>`;
+        
+        currentDailyTestData.forEach(item => {
+            const isSpellingCorrect = item.userAnswer.toLowerCase() === item.word.toLowerCase();
+            html += `<tr>
+                <td style="padding:4px; font-weight:bold; text-align:center;">${item.word}</td>
+                <td style="padding:4px; text-align:center; color:${isSpellingCorrect?'green':'red'};">${item.userAnswer || '未填'} ${isSpellingCorrect?'✓':'✗'}</td>
+                <td style="padding:4px; text-align:center; color:blue;">"${item.userSpeechText || '无'}" (${item.speechScore}%)</td>
+            </tr>`;
+        });
+        html += `</table>`;
+        logBox.innerHTML = html;
+    }
+
+
+    // --- GIỮ NGUYÊN TOÀN BỘ LOGIC HỌC TẬP THẺ TỪ BAN ĐẦU CỦA BẠN ---
     function addGroupFilter(val) {
         if (!val) return;
-        if (val === "all") activeGroups = ["all"];
-        else { activeGroups = activeGroups.filter(i => i !== "all"); if (!activeGroups.includes(val)) activeGroups.push(val); }
-        renderTags(); applyFilters();
-        document.getElementById("groupAdder").value = "";
+        if (val === "all") {
+            activeGroups = ["chu_cai", "phu_am", "a", "ă", "â", "e", "ê", "o", "ô", "ơ", "i_y", "u", "ư"];
+        } else {
+            if (!activeGroups.includes(val)) activeGroups.push(val);
+        }
+        document.getElementById('groupAdder').value = "";
+        renderTags();
+        applyFilters();
     }
 
-    function removeGroup(g) { activeGroups = activeGroups.filter(i => i !== g); renderTags(); applyFilters(); }
-
-    function applyFilters() {
-        filteredList = activeGroups.length === 0 ? [] : activeGroups.includes("all") ? [...database] : database.filter(item => activeGroups.includes(item.group));
-        idx = 0; syncCardUI();
+    function removeGroupFilter(groupName) {
+        activeGroups = activeGroups.filter(g => g !== groupName);
+        renderTags();
+        applyFilters();
     }
 
-    function syncCardUI() {
-        document.getElementById("totalProgress").innerText = filteredList.length;
-        document.getElementById("alertBox").innerText = "";
-        document.getElementById("dictationField").value = "";
-        document.getElementById("cardInner").classList.remove("is-flipped");
-        
-        if (filteredList.length === 0) {
-            document.getElementById("currentProgress").innerText = 0;
-            document.getElementById("wordRevealTarget").innerText = "---";
-            document.getElementById("meanRevealTarget").innerText = "---";
+    function renderTags() {
+        const tagBox = document.getElementById('tagBox');
+        tagBox.innerHTML = "";
+        if (activeGroups.length === 0) {
+            tagBox.innerHTML = "<span style='color:#aaa; font-size:12px;'>暂无过滤条件，请在下方添加...</span>";
             return;
         }
-        document.getElementById("currentProgress").innerText = idx + 1;
-        document.getElementById("wordRevealTarget").innerText = filteredList[idx].word;
-        document.getElementById("meanRevealTarget").innerText = filteredList[idx].mean;
-        playSoundDirectly();
+        activeGroups.forEach(g => {
+            const span = document.createElement('span');
+            span.className = "tag-item";
+            span.innerHTML = `${g} ✕`;
+            span.onclick = () => removeGroupFilter(g);
+            tagBox.appendChild(span);
+        });
     }
 
-    function playSoundDirectly() {
-        if (filteredList.length === 0) return;
-        stopComparePlayback();
-        const player = document.getElementById("internalAudioPlayer");
-        player.src = encodeURI(cloudStorageUrl + filteredList[idx].file); 
-        player.load(); player.play().catch(e => console.log(e));
+    function applyFilters() {
+        filteredList = database.filter(item => activeGroups.includes(item.group));
+        idx = 0;
+        updateUI();
     }
 
     function shuffleCards() {
-        if (filteredList.length <= 1) return;
+        if(filteredList.length <= 1) return;
         for (let i = filteredList.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
             [filteredList[i], filteredList[j]] = [filteredList[j], filteredList[i]];
         }
-        idx = 0; syncCardUI();
+        idx = 0;
+        updateUI();
+        alert("🔀 已打乱当前筛选队列顺序！");
     }
 
-    function flipCard() { if (filteredList.length > 0) document.getElementById("cardInner").classList.toggle("is-flipped"); }
-    function movePointer(s) { if (filteredList.length === 0) return; idx = (idx + s + filteredList.length) % filteredList.length; syncCardUI(); }
+    function updateUI() {
+        const currentProgress = document.getElementById('currentProgress');
+        const totalProgress = document.getElementById('totalProgress');
+        const wordRevealTarget = document.getElementById('wordRevealTarget');
+        const meanRevealTarget = document.getElementById('meanRevealTarget');
+        const alertBox = document.getElementById('alertBox');
+        const dictationField = document.getElementById('dictationField');
+        const cardInner = document.getElementById('cardInner');
 
-    function openCompareWindow() { document.getElementById("mainAppZone").style.display = "none"; document.getElementById("compareWindowModal").style.display = "block"; buildCompareCheckboxGrid(); }
-    function closeCompareWindow() { stopComparePlayback(); document.getElementById("compareWindowModal").style.display = "none"; document.getElementById("mainAppZone").style.display = "block"; }
+        cardInner.classList.remove('is-flipped');
+        alertBox.innerHTML = "";
+        dictationField.value = "";
 
-    function buildCompareCheckboxGrid() {
-        const container = document.getElementById("compareCheckboxContainer"); if (!container) return; container.innerHTML = "";
-        database.forEach((item) => {
-            const isChecked = selectedCompareFiles.includes(item.file) ? "checked" : "";
-            container.innerHTML += `<label class="compare-label-box"><input type="checkbox" value="${item.file}" data-word="${item.word}" ${isChecked} onchange="handleCompareGridChange()">${item.word}</label>`;
-        });
+        if (filteredList.length === 0) {
+            currentProgress.innerText = "0";
+            totalProgress.innerText = "0";
+            wordRevealTarget.innerText = "---";
+            meanRevealTarget.innerText = "请先添加核心字母组条件";
+            return;
+        }
+
+        currentProgress.innerText = idx + 1;
+        totalProgress.innerText = filteredList.length;
+
+        const currentItem = filteredList[idx];
+        wordRevealTarget.innerText = currentItem.word;
+        meanRevealTarget.innerText = currentItem.mean;
+
+        setTimeout(() => {
+            playSoundDirectly();
+        }, 300);
     }
 
-    function handleCompareGridChange() {
-        const checkboxes = document.querySelectorAll("#compareCheckboxContainer input[type='checkbox']");
-        let selectedWords = []; selectedCompareFiles = [];
-        checkboxes.forEach(cb => { if (cb.checked) { selectedWords.push(cb.getAttribute("data-word")); selectedCompareFiles.push(cb.value); } });
-        document.getElementById("compareWordsInput").value = selectedWords.join(" → ");
+    function movePointer(step) {
+        if (filteredList.length === 0) return;
+        idx += step;
+        if (idx < 0) idx = filteredList.length - 1;
+        if (idx >= filteredList.length) idx = 0;
+        updateUI();
     }
 
-    function startComparePlayback() {
-        if (selectedCompareFiles.length < 2) { alert("请至少勾选 2 个单词进行对比！"); return; }
-        document.getElementById("internalAudioPlayer").pause(); currentCompareIdx = 0; isComparePlaying = true;
-        playNextCompareTrack(document.getElementById("compareAudioPlayer"));
+    function flipCard() {
+        document.getElementById('cardInner').classList.toggle('is-flipped');
     }
 
-    function playNextCompareTrack(player) {
-        if (!isComparePlaying || currentCompareIdx >= selectedCompareFiles.length) { isComparePlaying = false; return; }
-        player.src = encodeURI(cloudStorageUrl + selectedCompareFiles[currentCompareIdx]);
-        player.load(); player.play().catch(e => console.log(e));
-        player.onended = function() { currentCompareIdx++; setTimeout(() => { playNextCompareTrack(player); }, 600); };
+    function playSoundDirectly() {
+        if (filteredList.length === 0) return;
+        const currentItem = filteredList[idx];
+        const player = document.getElementById('internalAudioPlayer');
+        player.src = cloudStorageUrl + currentItem.file;
+        player.play().catch(err => console.log("Audio play deferred"));
     }
 
-    function stopComparePlayback() { isComparePlaying = false; const player = document.getElementById("compareAudioPlayer"); if (player) { player.pause(); player.src = ""; } }
-    function clearCompareSelection() { stopComparePlayback(); document.querySelectorAll("#compareCheckboxContainer input[type='checkbox']").forEach(cb => cb.checked = false); document.getElementById("compareWordsInput").value = ""; selectedCompareFiles = []; }
+    // Kiểm tra gõ chính tả trên màn hình chính
+    document.getElementById('dictationField').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            if (filteredList.length === 0) return;
+            const currentItem = filteredList[idx];
+            const userVal = this.value.trim().toLowerCase();
+            const correctVal = currentItem.word.toLowerCase();
+            const alertBox = document.getElementById('alertBox');
 
-    document.getElementById("dictationField").addEventListener("keydown", function(e) {
-        if (e.key === "Enter") {
-            e.preventDefault();
-            const inputVal = this.value.trim().toLowerCase();
-            const answerVal = filteredList[idx].word.toLowerCase();
-            const alertElement = document.getElementById("alertBox");
-            if(inputVal === "") return;
-            if (inputVal === answerVal) {
-                alertElement.className = "result-message result-success"; alertElement.innerText = "🎉 正确！拼写完全一致！";
-                document.getElementById("cardInner").classList.add("is-flipped");
+            if (userVal === correctVal) {
+                alertBox.className = "result-message result-success";
+                alertBox.innerHTML = "✅ 拼写完全正确！太棒了！";
+                if(!document.getElementById('cardInner').classList.contains('is-flipped')){
+                    flipCard();
+                }
             } else {
-                alertElement.className = "result-message result-error"; alertElement.innerText = `❌ 错误！请点击卡片翻转查看正解`;
+                alertBox.className = "result-message result-error";
+                alertBox.innerHTML = `❌ 拼写错误，请再听音重试一次！`;
             }
         }
     });
-</script>
 
-<!-- NHÚNG FILE SCRIPT CHẤM ĐIỂM RIÊNG BIỆT -->
-<script src="voice-eval.js"></script>
+    // --- DIALOG PHÁT ÂM ĐỐI CHIẾU ---
+    function openCompareWindow() {
+        document.getElementById('compareWindowModal').style.display = 'block';
+    }
+    function closeCompareWindow() {
+        stopComparePlayback();
+        document.getElementById('compareWindowModal').style.display = 'none';
+    }
+    function buildCompareCheckboxGrid() {
+        const container = document.getElementById('compareCheckboxContainer');
+        container.innerHTML = "";
+        database.forEach((item, index) => {
+            const label = document.createElement('label');
+            label.className = "compare-label-box";
+            label.innerHTML = `<input type="checkbox" value="${item.file}" data-word="${item.word}" onchange="handleCompareCheckboxChange()"> ${item.word}`;
+            container.appendChild(label);
+        });
+    }
+    function handleCompareCheckboxChange() {
+        const checkboxes = document.querySelectorAll('#compareCheckboxContainer input[type="checkbox"]:checked');
+        selectedCompareFiles = [];
+        let wordNames = [];
+        checkboxes.forEach(cb => {
+            selectedCompareFiles.push(cb.value);
+            wordNames.push(cb.getAttribute('data-word'));
+        });
+        document.getElementById('compareWordsInput').value = wordNames.join(' ➔ ');
+    }
+    function clearCompareSelection() {
+        const checkboxes = document.querySelectorAll('#compareCheckboxContainer input[type="checkbox"]');
+        checkboxes.forEach(cb => cb.checked = false);
+        selectedCompareFiles = [];
+        document.getElementById('compareWordsInput').value = "";
+        stopComparePlayback();
+    }
+    function startComparePlayback() {
+        if (selectedCompareFiles.length === 0) {
+            alert("请先勾选需要对比组合的音节单词！");
+            return;
+        }
+        isComparePlaying = true;
+        currentCompareIdx = 0;
+        playCompareRoutine();
+    }
+    function stopComparePlayback() {
+        isComparePlaying = false;
+        const player = document.getElementById('compareAudioPlayer');
+        player.pause();
+    }
+    function playCompareRoutine() {
+        if (!isComparePlaying || currentCompareIdx >= selectedCompareFiles.length) {
+            isComparePlaying = false;
+            return;
+        }
+        const player = document.getElementById('compareAudioPlayer');
+        player.src = cloudStorageUrl + selectedCompareFiles[currentCompareIdx];
+        player.play();
+        player.onended = () => {
+            currentCompareIdx++;
+            playCompareRoutine();
+        };
+    }
+
+    // --- POPUP ĐÁNH GIÁ PHÁT ÂM TRÊN CARD HỌC TẬP ---
+    let isEvalRecording = false;
+    function openEvalPopup() {
+        document.getElementById('evalPopupModal').style.display = 'block';
+        setSvgCirclePercent(0);
+        document.getElementById('evalResultDetails').style.visibility = "hidden";
+        
+        const selector = document.getElementById('evalWordSelector');
+        selector.innerHTML = "";
+        if (filteredList.length === 0) {
+            selector.innerHTML = "<option value=''>当前筛选队列空</option>";
+            return;
+        }
+        filteredList.forEach((item, index) => {
+            const opt = document.createElement('option');
+            opt.value = index;
+            opt.innerText = `序号 ${index+1}: ${item.word} (${item.mean})`;
+            if(index === idx) opt.selected = true;
+            selector.appendChild(opt);
+        });
+    }
+    function closeEvalPopup() {
+        if(isEvalRecording && globalRecognition) {
+            globalRecognition.stop();
+        }
+        document.getElementById('evalPopupModal').style.display = 'none';
+    }
+    function handleEvalWordSelectChange(v) {
+        setSvgCirclePercent(0);
+        document.getElementById('evalResultDetails').style.visibility = "hidden";
+    }
+    function setSvgCirclePercent(pct) {
+        const circle = document.getElementById('svgProgressCircleBar');
+        const text = document.getElementById('evalCirclePercentText');
+        const radius = circle.r.baseVal.value;
+        const circumference = 2 * Math.PI * radius;
+        
+        const offset = circumference - (pct / 100) * circumference;
+        circle.style.strokeDashoffset = offset;
+        text.innerText = pct + "%";
+        
+        if(pct >= 80) circle.style.stroke = "#4CAF50";
+        else if(pct >= 50) circle.style.stroke = "#FF9800";
+        else circle.style.stroke = "#f44336";
+    }
+    function toggleEvalRecording() {
+        if (!globalRecognition) {
+            alert("⚠️ 系统的 Web Speech Recognition 接口不可用。");
+            return;
+        }
+        
+        const triggerBtn = document.getElementById('btnEvalRecordTrigger');
+        const selIdx = document.getElementById('evalWordSelector').value;
+        if(!selIdx) return;
+        const targetWord = filteredList[selIdx].word.toLowerCase().trim();
+
+        if (isEvalRecording) {
+            globalRecognition.stop();
+            isEvalRecording = false;
+            triggerBtn.classList.remove('recording');
+            triggerBtn.innerHTML = `🎙️<br><span style="font-size:12px;">Nhấn đọc</span>`;
+        } else {
+            isEvalRecording = true;
+            triggerBtn.classList.add('recording');
+            triggerBtn.innerHTML = `⏹️<br><span style="font-size:12px;">正在录音</span>`;
+            
+            globalRecognition.onresult = (event) => {
+                const speechResult = event.results[0][0].transcript.toLowerCase().replace(/[\.\?\,\!]/g, "").trim();
+                let score = 0;
+                if(speechResult === targetWord) score = 100;
+                else if(speechResult.includes(targetWord) || targetWord.includes(speechResult)) score = 75;
+                else score = 20;
+
+                setSvgCirclePercent(score);
+                
+                const details = document.getElementById('evalResultDetails');
+                details.style.visibility = "visible";
+                document.getElementById('evalResultComparisonText').innerHTML = `
+                    🎯 <b>目标音节 (Mục tiêu):</b> <span style="color:#5c4cf4">${targetWord}</span><br>
+                    🎙️ <b>系统听到 (Nhận diện):</b> <span style="color:#ff4d4f">"${speechResult}"</span><br>
+                    💡 <b>评语 (Đánh giá):</b> ${score >= 75 ? '发音很棒！继续保持！' : '发音口型不准，请重新听标准音并练习。'}
+                `;
+            };
+            
+            globalRecognition.onerror = () => {
+                isEvalRecording = false;
+                triggerBtn.classList.remove('recording');
+                triggerBtn.innerHTML = `🎙️<br><span style="font-size:12px;">Nhấn đọc</span>`;
+            };
+
+            globalRecognition.onend = () => {
+                isEvalRecording = false;
+                triggerBtn.classList.remove('recording');
+                triggerBtn.innerHTML = `🎙️<br><span style="font-size:12px;">Nhấn đọc</span>`;
+            };
+
+            globalRecognition.start();
+        }
+    }
+</script>
 
 </body>
 </html>
